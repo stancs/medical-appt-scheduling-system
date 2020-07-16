@@ -1,0 +1,32 @@
+Requirements
+
+
+Possible issues
+- Timezone issue
+- 
+
+Tech stacks
+- GraphQL
+- Mongo DB
+- How to run node.js in AWS environment
+- How to test it?
+
+Quetions
+
+
+DB
+Mongo
+- patients
+- providers
+- appointments
+
+
+
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://stanlee:<password>@avery.sgwq8.mongodb.net/<dbname>?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true });
+client.connect(err => {
+  const collection = client.db("test").collection("devices");
+  // perform actions on the collection object
+  client.close();
+});

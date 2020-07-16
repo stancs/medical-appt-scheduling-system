@@ -1,0 +1,25 @@
+{
+  "name": "scheduling-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stancs/scheduling-system.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stancs/scheduling-system/issues"
+  },
+  "homepage": "https://github.com/stancs/scheduling-system#readme",
+  "dependencies": {
+    "apollo-server": "^2.15.1",
+    "dotenv": "^8.2.0",
+    "graphql": "^15.3.0",
+    "mongoose": "^5.9.24"
+  }
+}
