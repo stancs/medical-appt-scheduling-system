@@ -1,0 +1,9 @@
+query {
+  getProviders {
+    id
+    userName
+    firstName
+    lastName
+    email
+  }
+}

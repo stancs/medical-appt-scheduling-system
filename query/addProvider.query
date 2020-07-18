@@ -1,0 +1,16 @@
+mutation addProvider {
+  addProvider(
+    userName: "christian1234",
+    firstName: "Christian",
+    lastName: "Dovis",
+    email: "christian@yopmail.com",
+    phone: "512-112-2222"
+  ) {
+    id
+    userName
+    firstName
+    lastName
+    email
+    phone
+  }
+}

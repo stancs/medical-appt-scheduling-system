@@ -1,0 +1,9 @@
+query {
+  getPatients {
+    id
+    userName
+    firstName
+    lastName
+    email
+  }
+}

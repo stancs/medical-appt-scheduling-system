@@ -1,9 +1,12 @@
 Requirements
+- Patients can schedule their appointment in different locations
+- Providers can see their schedule
 
 
 Possible issues
 - Timezone issue
-- 
+- Summer time?
+- If too many patients? Then paginate
 
 Tech stacks
 - GraphQL

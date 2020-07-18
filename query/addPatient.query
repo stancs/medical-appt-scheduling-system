@@ -1,0 +1,16 @@
+mutation addPatient {
+  addPatient(
+    userName: "avery1234",
+    firstName: "Avery",
+    lastName: "Lee",
+    email: "avery@yopmail.com",
+    phone: "512-112-2222"
+  ) {
+    id
+    userName
+    firstName
+    lastName
+    email
+    phone
+  }
+}

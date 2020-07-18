@@ -1,0 +1,14 @@
+query {
+  getAppointmentsByPatient(patientId: "5f0ff7a47a981c978ecb01c3", startDateTime: "2020-07-18T10:00:00.000Z", endDateTime: "2020-07-18T20:00:00.000Z") {
+    id
+    provider {
+      id
+      firstName
+      lastName
+    }
+    startDateTime
+    endDateTime
+    location
+    room
+  }
+}

@@ -1,0 +1,18 @@
+mutation addAppointment {
+  addAppointment(
+    patientId: "5f1007f952130f742b873c9b",
+    providerId: "5f131ee4eb3e1854cd0179d4",
+    startDateTime: "2020-07-18T14:00:00Z",
+    endDateTime: "2020-07-18T15:00:00Z",
+    location: "Anderson Mill-Austin, TX",
+    room: "Rm10",
+  ) {
+    id
+    patientId
+    providerId
+    startDateTime
+    endDateTime
+    location
+    room
+  }
+}

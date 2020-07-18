@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node -r dotenv/config src/index.js",
+    "start:watch": "nodemon --exec npm start"
   },
   "repository": {
     "type": "git",
@@ -18,8 +20,12 @@
   "homepage": "https://github.com/stancs/scheduling-system#readme",
   "dependencies": {
     "apollo-server": "^2.15.1",
-    "dotenv": "^8.2.0",
     "graphql": "^15.3.0",
+    "graphql-iso-date": "^3.6.1",
     "mongoose": "^5.9.24"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.4"
   }
 }
