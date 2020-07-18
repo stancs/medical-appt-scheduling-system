@@ -65,6 +65,11 @@ const typeDefs = gql`
         room: String
     }
 
+    type DeleteResult {
+        isSuccess: Boolean
+        deletedCount: Int
+    }
+
     type Query {
         getPatients: [Patient]
         getPatientById(id: ID!): Patient
@@ -87,6 +92,12 @@ const typeDefs = gql`
             location: String
             room: String
         ): Appointment
+        updateAppointment(id: ID!): Appointment
+        cancelAppointment(id: ID!): DeleteResult
+        removePatient(id: ID!): DeleteResult
+        removeProvider(id: ID!): DeleteResult
+        updatePatient(id: ID!, firstName: String, lastName: String, email: String, phone: String): Patient
+        updateProvider(id: ID!, firstName: String, lastName: String, email: String, phone: String): Provider
     }
 `;
 

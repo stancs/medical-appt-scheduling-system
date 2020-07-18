@@ -15,6 +15,30 @@ const apptFind = async ({ providerId, patientId, periodStart, periodEnd }) => {
         .exec();
 };
 
+const deleteOne = async ({ model, id }) => {
+    try {
+        const response = await model.deleteOne({ _id: id });
+        console.log(response);
+        return { isSuccess: response.ok, deleteCount: response.deletedCount };
+    } catch (err) {
+        console.log(err);
+        return err.message;
+    }
+};
+
+const findOneAndUpdate = async ({ model, id, update }) => {
+    console.log(`id=%{id}`);
+    console.log(`update=\n`, update);
+    try {
+        const response = await model.findOneAndUpdate({ _id: id }, update, { new: true });
+        console.log(response);
+        return response;
+    } catch (err) {
+        console.log(err);
+        return err.message;
+    }
+};
+
 const resolvers = {
     Date: GraphQLDate,
     DateTime: GraphQLDateTime,
@@ -60,15 +84,24 @@ const resolvers = {
                 return err.message;
             }
         },
-
-        // addProvider: '',
-        // updatePatient: '',
-        // updateProvider: '',
-        // removePatient: '',
-        // removeProvider: '',
-        // createSchedule: '',
-        // updateSchedule: '',
-        // cancelSchedule: '',
+        updateAppointment: async () => {},
+        updatePatient: async (_, args) => {
+            const { id, ...update } = args;
+            return findOneAndUpdate({ model: Patient, id, update });
+        },
+        updateProvider: async (_, args) => {
+            const { id, ...update } = args;
+            return findOneAndUpdate({ model: Provider, id, update });
+        },
+        removePatient: async (_, { id }) => {
+            return deleteOne({ model: Patient, id });
+        },
+        removeProvider: async (_, { id }) => {
+            return deleteOne({ model: Provider, id });
+        },
+        cancelAppointment: async (_, { id }) => {
+            return deleteOne({ model: Appointment, id });
+        },
     },
 };
 

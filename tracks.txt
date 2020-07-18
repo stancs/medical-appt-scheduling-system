@@ -16,6 +16,8 @@ Tech stacks
 
 Quetions
 
+Good thing to have:
+- log
 
 DB
 Mongo
