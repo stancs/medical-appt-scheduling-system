@@ -49,10 +49,16 @@ const typeDefs = gql`
         regularShift: JSONObject
         # regularShifts
         # {
-        #   Monday: {
-        #     start: String! # HH:MM (24hr)
-        #     end: String!   # HH:MM (24hr)
-        #   },
+        #   Monday: [
+        #       {
+        #         start: String! # HH:MM (24hr)
+        #         end: String!   # HH:MM (24hr)
+        #       },
+        #       {
+        #         start: String! # HH:MM (24hr)
+        #         end: String!   # HH:MM (24hr)
+        #       }
+        #   ],
         #   Tuesday: {
         #     ...
         #   },
@@ -72,10 +78,16 @@ const typeDefs = gql`
         shift: JSONObject
         # regularShifts
         # {
-        #   Monday: {
-        #     start: String! # HH:MM (24hr)
-        #     end: String!   # HH:MM (24hr)
-        #   },
+        #  Monday: [
+        #       {
+        #         start: String! # HH:MM (24hr)
+        #         end: String!   # HH:MM (24hr)
+        #       },
+        #       {
+        #         start: String! # HH:MM (24hr)
+        #         end: String!   # HH:MM (24hr)
+        #       }
+        #   ],
         #   Tuesday: {
         #     ...
         #   },
@@ -113,8 +125,8 @@ const typeDefs = gql`
         id: ID!
         patient: Patient
         provider: Provider
-        startDateTime: DateTime
-        endDateTime: DateTime
+        startDateTimeIso: DateTime # Should get it from DateObject.toISOString()
+        endDateTimeIso: DateTime # Should get it from DateObject.toISOString()
         location: String
         room: String
     }
@@ -141,8 +153,8 @@ const typeDefs = gql`
         addAppointment(
             patientId: String!
             providerId: String!
-            startDateTime: DateTime
-            endDateTime: DateTime
+            startDateTimeIso: DateTime
+            endDateTimeIso: DateTime
             location: String
             room: String
         ): Appointment

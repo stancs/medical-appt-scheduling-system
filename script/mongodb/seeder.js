@@ -1,29 +1,9 @@
 const faker = require('faker');
-const moment = require('moment-timezone');
 const util = require('util');
 
 require('../../src/config');
 const { Patient, Provider, Appointment } = require('../../src/models');
-
-const dayOfWeekHash = {
-    0: 'Sunday',
-    1: 'Monday',
-    2: 'Tuesday',
-    3: 'Wednesday',
-    4: 'Thursday',
-    5: 'Friday',
-    6: 'Saturday',
-};
-
-const tz = (dateStr, timeZone) => {
-    return moment.tz(dateStr, timeZone);
-};
-
-const getHHMM = (hr24, min) => {
-    const paddedHr24 = hr24.toString().padStart(2, '0');
-    const paddedMin = min.toString().padStart(2, '0');
-    return `${paddedHr24}:${paddedMin}`;
-};
+const { getDayOfWeek, getHHMM, tz } = require('../../src/utils/dates');
 
 // Adjust these numbers to create more patients and providers
 const numPatients = 0;
@@ -83,7 +63,7 @@ async function addProviders() {
     for (let i = 0; i < numProviders; i++) {
         const regularShift = {};
         for (let j = 0; j < 4; j++) {
-            const dayOfWeek = dayOfWeekHash[faker.random.number(6)];
+            const dayOfWeek = getDayOfWeek(faker.random.number(6));
             if (!regularShift[dayOfWeek]) {
                 regularShift[dayOfWeek] = getDayShift();
             }
@@ -95,7 +75,7 @@ async function addProviders() {
 
         const scheduledShift = {};
         for (let j = 0; j < 4; j++) {
-            const dayOfWeek = dayOfWeekHash[faker.random.number(6)];
+            const dayOfWeek = getDayOfWeek(faker.random.number(6));
             if (!scheduledShift[dayOfWeek]) {
                 scheduledShift[dayOfWeek] = getDayShift();
             }
@@ -147,6 +127,7 @@ async function addProviders() {
             regularShift,
             scheduledShifts,
             blockedShifts,
+            timeZone,
         };
 
         try {

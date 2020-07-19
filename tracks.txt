@@ -29,6 +29,10 @@ Mongo
 - appointments
 
 
+goal
+should get any many appointment as possible from customers
+reduce office calls as many as possible
+
 
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb+srv://stanlee:<password>@avery.sgwq8.mongodb.net/<dbname>?retryWrites=true&w=majority";
