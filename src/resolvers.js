@@ -1,5 +1,6 @@
 const { Patient, Provider, Appointment } = require('./models');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
+const { GraphQLJSONObject } = require('graphql-type-json');
 
 const apptFind = async ({ providerId, patientId, periodStart, periodEnd }) => {
     return await Appointment.find({
@@ -42,6 +43,8 @@ const findOneAndUpdate = async ({ model, id, update }) => {
 const resolvers = {
     Date: GraphQLDate,
     DateTime: GraphQLDateTime,
+    JSONObject: GraphQLJSONObject,
+
     Query: {
         getPatients: async () => await Patient.find({}).exec(),
         getPatientById: async (_, { id }) => await Patient.findById(id).exec(),
@@ -77,7 +80,8 @@ const resolvers = {
         },
         addAppointment: async (_, args) => {
             try {
-                // TODO: Check any overlap
+                // TODO: Check doctor's availability and overlapping
+
                 const response = await Appointment.create(args);
                 return response;
             } catch (err) {

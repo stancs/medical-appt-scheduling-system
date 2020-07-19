@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "db:clean": "node -r dotenv/config script/mongodb/cleanDb.js",
+    "db:seeder": "node -r dotenv/config script/mongodb/seeder.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node -r dotenv/config src/index.js",
     "start:watch": "nodemon --exec npm start"
@@ -22,10 +24,14 @@
     "apollo-server": "^2.15.1",
     "graphql": "^15.3.0",
     "graphql-iso-date": "^3.6.1",
+    "graphql-type-json": "^0.3.2",
+    "moment": "^2.27.0",
+    "moment-timezone": "^0.5.31",
     "mongoose": "^5.9.24"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
+    "faker": "^4.1.0",
     "nodemon": "^2.0.4"
   }
 }

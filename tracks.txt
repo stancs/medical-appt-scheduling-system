@@ -15,6 +15,9 @@ Tech stacks
 - How to test it?
 
 Quetions
+- How to set a doctor's available spot?
+they have a regular hours with specific period
+special events like vacation
 
 Good thing to have:
 - log

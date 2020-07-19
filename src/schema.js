@@ -2,7 +2,10 @@ const { gql } = require('apollo-server');
 
 const typeDefs = gql`
     scalar Date
+    scalar Time
     scalar DateTime
+    scalar JSONObject
+
     type Patient {
         id: ID!
         userName: String
@@ -15,9 +18,9 @@ const typeDefs = gql`
         addressLine1: String
         addressLine2: String
         city: String
+        state: String
         county: String
         zipCode: String
-        state: String
         isSmoker: Boolean
         birthday: String
     }
@@ -34,15 +37,50 @@ const typeDefs = gql`
         addressLine1: String
         addressLine2: String
         city: String
+        state: String
         county: String
         zipCode: String
-        state: String
         isAcceptingNewPatient: Boolean
         languageSpoken: [String]
         npi: String
         education: Education
         biography: String
         affiliation: Affiliation
+        regularShift: JSONObject
+        # regularShifts
+        # {
+        #   Monday: {
+        #     start: String! # HH:MM (24hr)
+        #     end: String!   # HH:MM (24hr)
+        #   },
+        #   Tuesday: {
+        #     ...
+        #   },
+        #   ...
+        # }
+        scheduledShifts: [ScheduledShift]
+        blockedShifts: [ScheduledShift]
+        # Time zone
+        # Should get it from console.log(Intl.DateTimeFormat().resolvedOptions().timeZone) in browser side
+        # https://stackoverflow.com/questions/1091372/getting-the-clients-timezone-offset-in-javascript
+        timeZone: String
+    }
+
+    type ScheduledShift {
+        startDate: String! # YYYY-MM-DD
+        endDate: String! # YYYY-MM-DD
+        shift: JSONObject
+        # regularShifts
+        # {
+        #   Monday: {
+        #     start: String! # HH:MM (24hr)
+        #     end: String!   # HH:MM (24hr)
+        #   },
+        #   Tuesday: {
+        #     ...
+        #   },
+        #   ...
+        # }
     }
 
     type Education {
@@ -53,6 +91,22 @@ const typeDefs = gql`
     type Affiliation {
         medicalGroup: String
         hospital: String
+    }
+
+    type Shift {
+        dayOfWeek: DayOfWeek!
+        start: Time!
+        end: Time!
+    }
+
+    enum DayOfWeek {
+        MONDAY
+        TUESDAY
+        WEDNESDAY
+        THURSDAY
+        FRIDAY
+        SATURDAY
+        SUNDAY
     }
 
     type Appointment {
