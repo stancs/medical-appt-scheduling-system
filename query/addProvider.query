@@ -55,6 +55,16 @@ mutation {
           end: "17:00",
         }
       ],
+      Thursday: [
+        {
+          start: "09:00",
+          end: "12:00",
+        },
+        {
+          start: "13:00",
+          end: "17:00",
+        }
+      ],
     },
     scheduledShifts: [
       {
@@ -102,42 +112,46 @@ mutation {
     ],
     timeZone: "America/Chicago",
   }) {
-    id
-    userName
-    firstName
-    middleName
-    lastName
-    email
-    phone
-    addressLine1
-    addressLine2
-    city
-    state
-    county
-    zipCode
-    isAcceptingNewPatient
-    languagesSpoken
-    npi
-    education {
-      medicalSchool
-      residency
+    success
+    message
+    provider {
+      id
+      userName
+      firstName
+      middleName
+      lastName
+      email
+      phone
+      addressLine1
+      addressLine2
+      city
+      state
+      county
+      zipCode
+      isAcceptingNewPatient
+      languagesSpoken
+      npi
+      education {
+        medicalSchool
+        residency
+      }
+      biography
+      affiliation {
+        medicalGroup
+        hospital
+      }
+      regularShift
+      scheduledShifts {
+        startDate
+        endDate
+        shift
+      }
+      blockedShifts {
+        startDate
+        endDate
+        shift
+      }
+      timeZone
     }
-    biography
-    affiliation {
-      medicalGroup
-      hospital
-    }
-    regularShift
-    scheduledShifts {
-      startDate
-      endDate
-      shift
-    }
-    blockedShifts {
-      startDate
-      endDate
-      shift
-    }
-    timeZone
   }
 }

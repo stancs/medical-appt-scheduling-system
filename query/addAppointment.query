@@ -7,20 +7,16 @@ mutation addAppointment {
     location: "Anderson Mill-Austin, TX",
     room: "Rm10",
   }) {
-    id
-    patient {
+    success
+    message
+    appointment {
       id
-      firstName
-      lastName
+      patient 
+      provider 
+      startDateTime
+      endDateTime
+      location
+      room
     }
-    provider {
-      id
-      firstName
-      lastName
-    }
-    startDateTime
-    endDateTime
-    location
-    room
   }
 }

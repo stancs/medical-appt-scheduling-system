@@ -15,20 +15,24 @@ mutation addPatient {
     isSmoker: false,
     birthday: "2018-12-11",
   }) {
-    id
-    userName
-    firstName
-    middleName
-    lastName
-    email
-    phone
-    addressLine1
-    addressLine2
-    city
-    state
-    county
-    zipCode
-    isSmoker
-    birthday
+    success
+    message
+    patient {
+      id
+      userName
+      firstName
+      middleName
+      lastName
+      email
+      phone
+      addressLine1
+      addressLine2
+      city
+      state
+      county
+      zipCode
+      isSmoker
+      birthday
+    }
   }
 }

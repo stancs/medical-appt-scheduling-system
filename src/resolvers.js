@@ -261,20 +261,33 @@ const resolvers = {
     Mutation: {
         addPatient: async (_, { input }) => {
             try {
-                const response = await Patient.create(input);
-                return response;
+                const patient = await Patient.create(input);
+
+                return {
+                    success: true,
+                    patient,
+                };
             } catch (err) {
-                return err.message;
+                return {
+                    success: false,
+                    message: err.message,
+                };
             }
         },
         addProvider: async (_, { input }) => {
             console.log(input);
             try {
-                const response = await Provider.create(input);
-                return response;
+                const provider = await Provider.create(input);
+                return {
+                    success: true,
+                    provider,
+                };
             } catch (err) {
                 console.log(err);
-                return err.message;
+                return {
+                    success: false,
+                    message: err.message,
+                };
             }
         },
         addAppointment: async (_, { input }) => {
@@ -293,29 +306,43 @@ const resolvers = {
                 console.log(`endDateTime = ${endDateTime}`);
 
                 if (!provider) {
-                    return 'Searching a provider using the given ID failed';
+                    const errMsg = 'Searching a provider using the given ID failed';
+                    return {
+                        success: false,
+                        message: errMsg,
+                    };
                 }
+
                 // First check whether the provider's scheduled is blocked during suggested appointment time
                 const res = isBlocked({ provider, startDateTime, endDateTime });
                 console.log(`res = ${res}`);
                 if (res) {
                     const errMsg = `The suggested appointment conflicts with the provider's blocked schedule`;
                     console.error(errMsg);
-                    return errMsg;
+                    return {
+                        success: false,
+                        message: errMsg,
+                    };
                 }
 
                 // Check whether the provider's scheduled is open
                 if (!isAvailable({ provider, startDateTime, endDateTime })) {
                     const errMsg = `The provider is not available during the suggested appointment period`;
                     console.log(errMsg);
-                    return errMsg;
+                    return {
+                        success: false,
+                        message: errMsg,
+                    };
                 }
 
                 const isOverlappedWithAnother = await isOverlapped({ provider, startDateTime, endDateTime });
                 if (isOverlappedWithAnother) {
                     const errMsg = `Overlapped appointment`;
                     console.log(errMsg);
-                    return errMsg;
+                    return {
+                        success: false,
+                        message: errMsg,
+                    };
                 }
 
                 const response = await Appointment.create(input);
@@ -326,7 +353,10 @@ const resolvers = {
                 // return response2;
             } catch (err) {
                 console.error(err);
-                return err.message;
+                return {
+                    success: false,
+                    message: err.message,
+                };
             }
         },
         updateAppointment: async () => {},

@@ -25,6 +25,12 @@ const typeDefs = gql`
         birthday: String
     }
 
+    type PatientResponse {
+        success: Boolean!
+        message: String
+        patient: Patient
+    }
+
     type Provider {
         id: ID!
         userName: String
@@ -72,6 +78,12 @@ const typeDefs = gql`
         timeZone: String!
     }
 
+    type ProviderResponse {
+        success: Boolean!
+        message: String
+        provider: Provider
+    }
+
     type ScheduledShift {
         startDate: String! # YYYY-MM-DD
         endDate: String! # YYYY-MM-DD
@@ -113,6 +125,12 @@ const typeDefs = gql`
         endDateTime: DateTime # Should get it from DateObject.toISOString()
         location: String
         room: String
+    }
+
+    type AppointmentResponse {
+        success: Boolean!
+        message: String
+        appointment: Appointment
     }
 
     type AppointmentExtended {
@@ -214,9 +232,9 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        addPatient(input: PatientInput): Patient
-        addProvider(input: ProviderInput): Provider
-        addAppointment(input: AppointmentInput): Appointment
+        addPatient(input: PatientInput): PatientResponse
+        addProvider(input: ProviderInput): ProviderResponse
+        addAppointment(input: AppointmentInput): AppointmentResponse
         updateAppointment(id: ID!): Appointment
         cancelAppointment(id: ID!): DeleteResult
         removePatient(id: ID!): DeleteResult
