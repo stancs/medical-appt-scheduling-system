@@ -292,6 +292,9 @@ const resolvers = {
                 console.log(`startDateTime = ${startDateTime}`);
                 console.log(`endDateTime = ${endDateTime}`);
 
+                if (!provider) {
+                    return 'Searching a provider using the given ID failed';
+                }
                 // First check whether the provider's scheduled is blocked during suggested appointment time
                 const res = isBlocked({ provider, startDateTime, endDateTime });
                 console.log(`res = ${res}`);

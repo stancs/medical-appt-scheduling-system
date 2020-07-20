@@ -5,7 +5,7 @@ mutation addPatient {
     middleName: "Eva",
     lastName: "Lee",
     email: "avery@yopmail.com",
-    phone: "512-112-2222"
+    phone: "512-112-2222",
     addressLine1: "2000 Blackthorn Dr",
     addressLine2: "Rm 101",
     city: "Pflugerville",

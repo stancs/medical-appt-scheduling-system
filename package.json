@@ -6,7 +6,7 @@
   "scripts": {
     "db:clean": "node -r dotenv/config script/mongodb/cleanDb.js",
     "db:seeder": "node -r dotenv/config script/mongodb/seeder.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:integration": "NODE_ENV=test jest src/__tests__/integration.js --setupFiles dotenv/config",
     "start": "node -r dotenv/config src/index.js",
     "start:watch": "nodemon --exec npm start"
   },
@@ -30,9 +30,13 @@
     "mongoose": "^5.9.24"
   },
   "devDependencies": {
+    "apollo-link": "^1.2.14",
+    "apollo-link-http": "^1.5.17",
     "apollo-server-testing": "^2.16.0",
     "dotenv": "^8.2.0",
     "faker": "^4.1.0",
+    "jest": "^26.1.0",
+    "node-fetch": "^2.6.0",
     "nodemon": "^2.0.4"
   }
 }
