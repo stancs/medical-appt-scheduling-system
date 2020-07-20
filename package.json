@@ -1,0 +1,43 @@
+{
+  "name": "scheduling-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "db:clean": "node -r dotenv/config script/mongodb/cleanDb.js",
+    "db:seeder": "node -r dotenv/config script/mongodb/seeder.js",
+    "debug": "node --nolazy --inspect-brk  src/index.js",
+    "test:integration": "NODE_ENV=test jest src/__tests__/integration.js --setupFiles dotenv/config",
+    "start": "node -r dotenv/config src/index.js",
+    "start:watch": "nodemon --exec npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stancs/scheduling-system.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stancs/scheduling-system/issues"
+  },
+  "homepage": "https://github.com/stancs/scheduling-system#readme",
+  "dependencies": {
+    "apollo-server": "^2.15.1",
+    "graphql": "^15.3.0",
+    "graphql-iso-date": "^3.6.1",
+    "graphql-type-json": "^0.3.2",
+    "moment": "^2.27.0",
+    "moment-timezone": "^0.5.31",
+    "mongoose": "^5.9.24"
+  },
+  "devDependencies": {
+    "apollo-link": "^1.2.14",
+    "apollo-link-http": "^1.5.17",
+    "apollo-server-testing": "^2.16.0",
+    "dotenv": "^8.2.0",
+    "faker": "^4.1.0",
+    "jest": "^26.1.0",
+    "node-fetch": "^2.6.0",
+    "nodemon": "^2.0.4"
+  }
+}

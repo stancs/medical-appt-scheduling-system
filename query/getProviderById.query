@@ -1,0 +1,9 @@
+query {
+  getProviderById(id: "5f131ee4eb3e1854cd0179d4") {
+    id
+    userName
+    firstName
+    lastName
+    email
+  }
+}

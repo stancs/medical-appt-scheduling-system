@@ -1,0 +1,44 @@
+Requirements
+- Patients can schedule their appointment in different locations
+- Providers can see their schedule
+
+
+Possible issues
+- Timezone issue
+- Summer time?
+- If too many patients? Then paginate
+
+Tech stacks
+- GraphQL
+- Mongo DB
+- How to run node.js in AWS environment
+- How to test it?
+
+Quetions
+- How to set a doctor's available spot?
+they have a regular hours with specific period
+special events like vacation
+
+Good thing to have:
+- log
+
+DB
+Mongo
+- patients
+- providers
+- appointments
+
+
+goal
+should get any many appointment as possible from customers
+reduce office calls as many as possible
+
+
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://stanlee:<password>@avery.sgwq8.mongodb.net/<dbname>?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true });
+client.connect(err => {
+  const collection = client.db("test").collection("devices");
+  // perform actions on the collection object
+  client.close();
+});
