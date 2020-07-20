@@ -119,11 +119,12 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
     return false;
 };
 
-const passScheduledAvailability = async ({ provider, startDateTime, endDateTime }) => {
-    const { scheduledShifts } = provider;
+const isAvailable = ({ provider, startDateTime, endDateTime }) => {
+    const { scheduledShifts, regularShift } = provider;
     const suggestedStartTimestamp = startDateTime.getTime();
     const suggestedEndTimestamp = endDateTime.getTime();
 
+    let isEverContained = false;
     for (const scheduledShift of scheduledShifts) {
         const { startDate, endDate, shift } = scheduledShift;
 
@@ -131,10 +132,12 @@ const passScheduledAvailability = async ({ provider, startDateTime, endDateTime 
         const scheduledStartDateTimestamp = moment(startDate).tz(provider.timeZone).valueOf();
         const scheduledEndDateTimestamp = moment(endDate).tz(provider.timeZone).valueOf();
 
-        if (
-            suggestedStartTimestamp >= scheduledStartDateTimestamp &&
-            suggestedEndTimestamp <= scheduledEndDateTimestamp
-        ) {
+        const isContained =
+            scheduledStartDateTimestamp <= suggestedStartTimestamp &&
+            suggestedEndTimestamp <= scheduledEndDateTimestamp;
+
+        if (isContained) {
+            ifEverContained = true;
             // the appointment is overlapping with the blocked dates
             // Get apointment date string as YYYY-MM-DD
             // Date string can be different depending on time zone
@@ -147,7 +150,7 @@ const passScheduledAvailability = async ({ provider, startDateTime, endDateTime 
             const dayOfWeek = getDayOfWeek(new Date(appointmentDateStr).getDay());
             const schedules = shift[dayOfWeek];
 
-            for (const theSchedule of scheduls) {
+            for (const theSchedule of schedules) {
                 const scheduledStartTimestamp = moment(`${appointmentDateStr}T${theSchedule.start}`)
                     .tz(provider.timeZone)
                     .valueOf();
@@ -155,7 +158,7 @@ const passScheduledAvailability = async ({ provider, startDateTime, endDateTime 
                     .tz(provider.timeZone)
                     .valueOf();
                 if (
-                    suggestedStartTimestamp >= scheduledStartTimestamp &&
+                    scheduledStartTimestamp <= suggestedStartTimestamp &&
                     suggestedEndTimestamp <= scheduledEndTimestamp
                 ) {
                     return true;
@@ -163,36 +166,59 @@ const passScheduledAvailability = async ({ provider, startDateTime, endDateTime 
             }
         }
     }
+
+    if (!isEverContained) {
+        const { startDate, endDate, shift } = regularShift;
+
+        // the appointment is overlapping with the blocked dates
+        // Get apointment date string as YYYY-MM-DD
+        // Date string can be different depending on time zone
+        // For example in Austin time zone (-5:00)
+        // '2020-07-19T04:42:32Z' => 2020-07-18
+        // '2020-07-19T05:42:32Z' => 2020-07-19
+        const appointmentDateStr = moment(startDateTime).tz(provider.timeZone).format().slice(0, 10);
+        // (We assume that startDateTime and endDateTime are the same dates but different times)
+
+        const dayOfWeek = getDayOfWeek(new Date(appointmentDateStr).getDay());
+        const schedules = shift[dayOfWeek];
+
+        for (const theSchedule of schedules) {
+            const scheduledStartTimestamp = moment(`${appointmentDateStr}T${theSchedule.start}`)
+                .tz(provider.timeZone)
+                .valueOf();
+            const scheduledEndTimestamp = moment(`${appointmentDateStr}T${theSchedule.end}`)
+                .tz(provider.timeZone)
+                .valueOf();
+            if (scheduledStartTimestamp <= suggestedStartTimestamp && suggestedEndTimestamp <= scheduledEndTimestamp) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     return false;
 };
 
-const passRegularHours = async ({ provider, startDateTime, endDateTime }) => {
-    const { regularShift } = provider;
+const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
     const suggestedStartTimestamp = startDateTime.getTime();
     const suggestedEndTimestamp = endDateTime.getTime();
 
-    const { startDate, endDate, shift } = regularShift;
+    const now = new Date();
+    const farFuture = new Date();
+    farFuture.setYear(now.getFullYear() + 100);
 
-    // the appointment is overlapping with the blocked dates
-    // Get apointment date string as YYYY-MM-DD
-    // Date string can be different depending on time zone
-    // For example in Austin time zone (-5:00)
-    // '2020-07-19T04:42:32Z' => 2020-07-18
-    // '2020-07-19T05:42:32Z' => 2020-07-19
-    const appointmentDateStr = moment(startDateTime).tz(provider.timeZone).format().slice(0, 10);
-    // (We assume that startDateTime and endDateTime are the same dates but different times)
+    const appointments = await apptFind({ providerId: provider._id, periodStart: now, periodEnd: farFuture });
 
-    const dayOfWeek = getDayOfWeek(new Date(appointmentDateStr).getDay());
-    const schedules = shift[dayOfWeek];
+    for (const appt of appointments) {
+        const apptStartTimestamp = appt.startDateTime.getTime();
+        const apptEndTimestamp = appt.endDateTime.getTime();
 
-    for (const theSchedule of scheduls) {
-        const scheduledStartTimestamp = moment(`${appointmentDateStr}T${theSchedule.start}`)
-            .tz(provider.timeZone)
-            .valueOf();
-        const scheduledEndTimestamp = moment(`${appointmentDateStr}T${theSchedule.end}`)
-            .tz(provider.timeZone)
-            .valueOf();
-        if (suggestedStartTimestamp >= scheduledStartTimestamp && suggestedEndTimestamp <= scheduledEndTimestamp) {
+        const isOverlappedWithAppt = !(
+            (suggestedStartTimestamp < apptStartTimestamp && suggestedEndTimestamp < apptStartTimestamp) ||
+            (apptEndTimestamp < suggestedStartTimestamp && apptEndTimestamp < suggestedEndTimestamp)
+        );
+
+        if (isOverlappedWithAppt) {
             return true;
         }
     }
@@ -268,16 +294,18 @@ const resolvers = {
                 }
 
                 // Check whether the provider's scheduled is open
-                // If yes, schedule appointment
-                // If no, check regular hours
-                // if (!passScheduledAvailability({ provider, startDateTime, endDateTime })) {
-                //     // Check regular hours to see provider's availability
-                //     if (!passRegularHours({ provider, startDateTime, endDateTime })) {
-                //         const errMsg = `The provider is not available during the suggested appointment period`;
-                //         console.log(errMsg);
-                //         return errMsg;
-                //     }
-                // }
+                if (!isAvailable({ provider, startDateTime, endDateTime })) {
+                    const errMsg = `The provider is not available during the suggested appointment period`;
+                    console.log(errMsg);
+                    return errMsg;
+                }
+
+                const isOverlappedWithAnother = await isOverlapped({ provider, startDateTime, endDateTime });
+                if (isOverlappedWithAnother) {
+                    const errMsg = `Overlapped appointment`;
+                    console.log(errMsg);
+                    return errMsg;
+                }
 
                 const response = await Appointment.create(input);
                 return response;
