@@ -24,8 +24,15 @@ const getHHMM = (hr24, min) => {
     return `${paddedHr24}:${paddedMin}`;
 };
 
+const printTimes = (timestamp, timeZone) => {
+    const isoTime = new Date(timestamp).toISOString();
+    const localTime = moment(timestamp).tz(timeZone).format();
+    return `${isoTime} = ${localTime} = ${timestamp}`;
+};
+
 module.exports = {
     getDayOfWeek,
     getHHMM,
+    printTimes,
     tz,
 };

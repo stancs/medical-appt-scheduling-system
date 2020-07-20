@@ -3,7 +3,7 @@ const { Patient, Provider, Appointment } = require('./models');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
 const { GraphQLJSON } = require('graphql-type-json');
 
-const { getDayOfWeek } = require('./utils/dates');
+const { getDayOfWeek, printTimes } = require('./utils/dates');
 
 const apptFind = async ({ id, providerId, patientId, periodStart, periodEnd }) => {
     return await Appointment.find({
@@ -52,9 +52,6 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
     const suggestedStartTimestamp = startDateTime.getTime();
     const suggestedEndTimestamp = endDateTime.getTime();
 
-    console.log(`suggested start: ${startDateTime.toISOString()} = ${suggestedStartTimestamp}`);
-    console.log(`suggested end  : ${endDateTime.toISOString()} = ${suggestedEndTimestamp}`);
-
     for (const blockedShift of blockedShifts) {
         const { startDate, endDate, shift } = blockedShift;
 
@@ -62,16 +59,10 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
         const blockedStartDateTimestamp = moment(startDate).tz(provider.timeZone).valueOf();
         const blockedEndDateTimestamp = moment(endDate).tz(provider.timeZone).valueOf();
 
-        console.log(
-            `blocked start  : ${new Date(
-                moment(startDate).tz(provider.timeZone),
-            ).toISOString()} = ${blockedStartDateTimestamp}`,
-        );
-        console.log(
-            `blocked end    : ${new Date(
-                moment(endDate).tz(provider.timeZone),
-            ).toISOString()} = ${blockedEndDateTimestamp}`,
-        );
+        console.log(`suggested start    : ${printTimes(suggestedStartTimestamp, provider.timeZone)}`);
+        console.log(`suggested end      : ${printTimes(suggestedEndTimestamp, provider.timeZone)}`);
+        console.log(`blocked date start : ${printTimes(blockedStartDateTimestamp, provider.timeZone)}`);
+        console.log(`blocked date end   : ${printTimes(blockedEndDateTimestamp, provider.timeZone)}`);
 
         const isOverlapped = !(
             (suggestedStartTimestamp < blockedStartDateTimestamp &&
@@ -92,7 +83,8 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
                 const appointmentDateStr = moment(startDateTime).tz(provider.timeZone).format().slice(0, 10);
                 // (We assume that startDateTime and endDateTime are the same dates but different times)
 
-                const dayOfWeek = getDayOfWeek(new Date(appointmentDateStr).getDay());
+                const idx = new Date(moment(startDateTime).tz(provider.timeZone).format()).getDay();
+                const dayOfWeek = getDayOfWeek(idx);
                 const schedules = shift[dayOfWeek];
 
                 for (const theSchedule of scheduls) {
@@ -102,6 +94,12 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
                     const blockedEndTimestamp = moment(`${appointmentDateStr}T${theSchedule.end}`)
                         .tz(provider.timeZone)
                         .valueOf();
+
+                    console.log(`suggested start : ${printTimes(suggestedStartTimestamp, provider.timeZone)}`);
+                    console.log(`suggested end   : ${printTimes(suggestedEndTimestamp, provider.timeZone)}`);
+                    console.log(`blocked start   : ${printTimes(blockedStartTimestamp, provider.timeZone)}`);
+                    console.log(`blocked end     : ${printTimes(blockedEndTimestamp, provider.timeZone)}`);
+
                     if (
                         blockedStartTimestamp < suggestedEndTimestamp ||
                         suggestedStartTimestamp < blockedEndTimestamp
@@ -125,6 +123,7 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
     const suggestedEndTimestamp = endDateTime.getTime();
 
     let isEverContained = false;
+    debugger;
     for (const scheduledShift of scheduledShifts) {
         const { startDate, endDate, shift } = scheduledShift;
 
@@ -132,12 +131,17 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
         const scheduledStartDateTimestamp = moment(startDate).tz(provider.timeZone).valueOf();
         const scheduledEndDateTimestamp = moment(endDate).tz(provider.timeZone).valueOf();
 
+        console.log(`suggested start     : ${printTimes(suggestedStartTimestamp, provider.timeZone)}`);
+        console.log(`suggested end       : ${printTimes(suggestedEndTimestamp, provider.timeZone)}`);
+        console.log(`scheduled date start: ${printTimes(scheduledStartDateTimestamp, provider.timeZone)}`);
+        console.log(`scheduled date end  : ${printTimes(scheduledEndDateTimestamp, provider.timeZone)}`);
+
         const isContained =
             scheduledStartDateTimestamp <= suggestedStartTimestamp &&
             suggestedEndTimestamp <= scheduledEndDateTimestamp;
 
         if (isContained) {
-            ifEverContained = true;
+            isEverContained = true;
             // the appointment is overlapping with the blocked dates
             // Get apointment date string as YYYY-MM-DD
             // Date string can be different depending on time zone
@@ -147,7 +151,8 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
             const appointmentDateStr = moment(startDateTime).tz(provider.timeZone).format().slice(0, 10);
             // (We assume that startDateTime and endDateTime are the same dates but different times)
 
-            const dayOfWeek = getDayOfWeek(new Date(appointmentDateStr).getDay());
+            const idx = new Date(moment(startDateTime).tz(provider.timeZone).format()).getDay();
+            const dayOfWeek = getDayOfWeek(idx);
             const schedules = shift[dayOfWeek];
             if (schedules) {
                 for (const theSchedule of schedules) {
@@ -157,6 +162,12 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
                     const scheduledEndTimestamp = moment(`${appointmentDateStr}T${theSchedule.end}`)
                         .tz(provider.timeZone)
                         .valueOf();
+
+                    console.log(`suggested start: ${printTimes(suggestedStartTimestamp, provider.timeZone)}`);
+                    console.log(`suggested end  : ${printTimes(suggestedEndTimestamp, provider.timeZone)}`);
+                    console.log(`scheduled start: ${printTimes(scheduledStartTimestamp, provider.timeZone)}`);
+                    console.log(`scheduled end  : ${printTimes(scheduledEndTimestamp, provider.timeZone)}`);
+
                     if (
                         scheduledStartTimestamp <= suggestedStartTimestamp &&
                         suggestedEndTimestamp <= scheduledEndTimestamp
@@ -164,11 +175,14 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
                         return true;
                     }
                 }
+            } else {
+                return false;
             }
         }
     }
 
     if (!isEverContained) {
+        console.log('trace isEverContained');
         // the appointment is overlapping with the blocked dates
         // Get apointment date string as YYYY-MM-DD
         // Date string can be different depending on time zone
@@ -179,7 +193,8 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
         // (We assume that startDateTime and endDateTime are the same dates but different times)
         console.log(`appointmentDateStr = ${appointmentDateStr}`);
 
-        const dayOfWeek = getDayOfWeek(new Date(moment(startDateTime).tz(provider.timeZone).format()).getDay());
+        const idx = new Date(moment(startDateTime).tz(provider.timeZone).format()).getDay();
+        const dayOfWeek = getDayOfWeek(idx);
         console.log(`dayOfWeek = ${dayOfWeek}`);
 
         const schedules = regularShift[dayOfWeek];
@@ -192,6 +207,12 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
                 const scheduledEndTimestamp = moment(`${appointmentDateStr}T${theSchedule.end}`)
                     .tz(provider.timeZone)
                     .valueOf();
+
+                console.log(`suggested start: ${printTimes(suggestedStartTimestamp, provider.timeZone)}`);
+                console.log(`suggested end  : ${printTimes(suggestedEndTimestamp, provider.timeZone)}`);
+                console.log(`regular   start: ${printTimes(scheduledStartTimestamp, provider.timeZone)}`);
+                console.log(`regular   end  : ${printTimes(scheduledEndTimestamp, provider.timeZone)}`);
+
                 if (
                     scheduledStartTimestamp <= suggestedStartTimestamp &&
                     suggestedEndTimestamp <= scheduledEndTimestamp
@@ -220,6 +241,11 @@ const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
     for (const appt of appointments) {
         const apptStartTimestamp = appt.startDateTime.getTime();
         const apptEndTimestamp = appt.endDateTime.getTime();
+
+        console.log(`suggested start: ${printTimes(suggestedStartTimestamp, provider.timeZone)}`);
+        console.log(`suggested end  : ${printTimes(suggestedEndTimestamp, provider.timeZone)}`);
+        console.log(`appt start     : ${printTimes(apptStartTimestamp, provider.timeZone)}`);
+        console.log(`appt end       : ${printTimes(apptEndTimestamp, provider.timeZone)}`);
 
         const isOverlappedWithAppt = !(
             (suggestedStartTimestamp < apptStartTimestamp && suggestedEndTimestamp < apptStartTimestamp) ||
@@ -307,6 +333,7 @@ const resolvers = {
 
                 if (!provider) {
                     const errMsg = 'Searching a provider using the given ID failed';
+                    console.error(errMsg);
                     return {
                         success: false,
                         message: errMsg,
@@ -345,12 +372,12 @@ const resolvers = {
                     };
                 }
 
-                const response = await Appointment.create(input);
-                return response;
-                // console.log(`response = ${response}`);
-                // const response2 = await apptFind({ id: response._id });
-                // console.log(`response2 = ${response2}`);
-                // return response2;
+                const appointment = await Appointment.create(input);
+
+                return {
+                    success: true,
+                    appointment,
+                };
             } catch (err) {
                 console.error(err);
                 return {

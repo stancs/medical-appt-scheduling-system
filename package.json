@@ -6,6 +6,7 @@
   "scripts": {
     "db:clean": "node -r dotenv/config script/mongodb/cleanDb.js",
     "db:seeder": "node -r dotenv/config script/mongodb/seeder.js",
+    "debug": "node --nolazy --inspect-brk  src/index.js",
     "test:integration": "NODE_ENV=test jest src/__tests__/integration.js --setupFiles dotenv/config",
     "start": "node -r dotenv/config src/index.js",
     "start:watch": "nodemon --exec npm start"
