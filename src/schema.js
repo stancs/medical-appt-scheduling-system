@@ -107,10 +107,20 @@ const typeDefs = gql`
 
     type Appointment {
         id: ID!
+        patient: ID!
+        provider: ID!
+        startDateTime: DateTime # Should get it from DateObject.toISOString()
+        endDateTime: DateTime # Should get it from DateObject.toISOString()
+        location: String
+        room: String
+    }
+
+    type AppointmentExtended {
+        id: ID!
         patient: Patient
         provider: Provider
-        startDateTimeIso: DateTime # Should get it from DateObject.toISOString()
-        endDateTimeIso: DateTime # Should get it from DateObject.toISOString()
+        startDateTime: DateTime # Should get it from DateObject.toISOString()
+        endDateTime: DateTime # Should get it from DateObject.toISOString()
         location: String
         room: String
     }
@@ -125,10 +135,14 @@ const typeDefs = gql`
         getPatientById(id: ID!): Patient
         getProviders: [Provider]
         getProviderById(id: ID!): Provider
-        getAppointmentById(id: ID!): Appointment
-        getAppointmentsByPeriod(startDateTime: DateTime, endDateTime: DateTime): [Appointment]
-        getAppointmentsByProvider(providerId: ID!, startDateTime: DateTime, endDateTime: DateTime): [Appointment]
-        getAppointmentsByPatient(patientId: ID!, startDateTime: DateTime, endDateTime: DateTime): [Appointment]
+        getAppointmentById(id: ID!): AppointmentExtended
+        getAppointmentsByPeriod(startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
+        getAppointmentsByProvider(
+            providerId: ID!
+            startDateTime: DateTime
+            endDateTime: DateTime
+        ): [AppointmentExtended]
+        getAppointmentsByPatient(patientId: ID!, startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
     }
 
     input PatientInput {
@@ -163,22 +177,38 @@ const typeDefs = gql`
         county: String
         zipCode: String
         isAcceptingNewPatient: Boolean
-        languagesSpoken: JSON
+        languagesSpoken: [String]
         npi: String
-        education: JSON
+        education: EducationInput
         biography: String
-        affiliation: JSON
+        affiliation: AffiliationInput
         regularShift: JSON
-        scheduledShifts: JSON
-        blockedShifts: JSON
+        scheduledShifts: [ScheduledShiftInput]
+        blockedShifts: [ScheduledShiftInput]
         timeZone: String!
     }
 
+    input EducationInput {
+        medicalSchool: String
+        residency: String
+    }
+
+    input AffiliationInput {
+        medicalGroup: String
+        hospital: String
+    }
+
+    input ScheduledShiftInput {
+        startDate: String! # YYYY-MM-DD
+        endDate: String! # YYYY-MM-DD
+        shift: JSON
+    }
+
     input AppointmentInput {
-        patientId: String!
-        providerId: String!
-        startDateTimeIso: DateTime
-        endDateTimeIso: DateTime
+        patient: String!
+        provider: String!
+        startDateTime: DateTime
+        endDateTime: DateTime
         location: String
         room: String
     }
@@ -191,8 +221,8 @@ const typeDefs = gql`
         cancelAppointment(id: ID!): DeleteResult
         removePatient(id: ID!): DeleteResult
         removeProvider(id: ID!): DeleteResult
-        updatePatient(id: ID!, firstName: String, lastName: String, email: String, phone: String): Patient
-        updateProvider(id: ID!, firstName: String, lastName: String, email: String, phone: String): Provider
+        updatePatient(id: ID!, input: PatientInput): Patient
+        updateProvider(id: ID!, input: ProviderInput): Provider
     }
 `;
 

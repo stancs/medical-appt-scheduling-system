@@ -5,8 +5,8 @@ const patientSchema = new Schema(
     {
         userName: {
             type: String,
-            unique: true,
-            index: true,
+            // unique: true,
+            // index: true,
         },
         firstName: {
             type: String,
@@ -37,8 +37,8 @@ const providerSchema = new Schema(
     {
         userName: {
             type: String,
-            unique: true,
-            index: true,
+            // unique: true,
+            // index: true,
         },
         firstName: String,
         middleName: String,

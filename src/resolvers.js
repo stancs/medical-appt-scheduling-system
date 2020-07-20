@@ -1,17 +1,22 @@
+const moment = require('moment-timezone');
 const { Patient, Provider, Appointment } = require('./models');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
 const { GraphQLJSON } = require('graphql-type-json');
 
 const { getDayOfWeek } = require('./utils/dates');
 
-const apptFind = async ({ providerId, patientId, periodStart, periodEnd }) => {
+const apptFind = async ({ id, providerId, patientId, periodStart, periodEnd }) => {
     return await Appointment.find({
+        ...(id && { _id: id }),
         ...(providerId && { provider: providerId }),
         ...(patientId && { patient: patientId }),
-        $or: [
-            { startDateTime: { $gte: periodStart, $lte: periodEnd } },
-            { endDateTime: { $gte: periodStart, $lte: periodEnd } },
-        ],
+        ...(periodStart &&
+            periodEnd && {
+                $or: [
+                    { startDateTime: { $gte: periodStart, $lte: periodEnd } },
+                    { endDateTime: { $gte: periodStart, $lte: periodEnd } },
+                ],
+            }),
     })
         .populate('provider')
         .populate('patient')
@@ -42,10 +47,13 @@ const findOneAndUpdate = async ({ model, id, update }) => {
     }
 };
 
-const isBlocked = async ({ provider, startDateTime, endDateTime }) => {
+const isBlocked = ({ provider, startDateTime, endDateTime }) => {
     const { blockedShifts } = provider;
     const suggestedStartTimestamp = startDateTime.getTime();
     const suggestedEndTimestamp = endDateTime.getTime();
+
+    console.log(`suggested start: ${startDateTime.toISOString()} = ${suggestedStartTimestamp}`);
+    console.log(`suggested end  : ${endDateTime.toISOString()} = ${suggestedEndTimestamp}`);
 
     for (const blockedShift of blockedShifts) {
         const { startDate, endDate, shift } = blockedShift;
@@ -54,7 +62,26 @@ const isBlocked = async ({ provider, startDateTime, endDateTime }) => {
         const blockedStartDateTimestamp = moment(startDate).tz(provider.timeZone).valueOf();
         const blockedEndDateTimestamp = moment(endDate).tz(provider.timeZone).valueOf();
 
-        if (blockedStartDateTimestamp < suggestedEndTimestamp || suggestedStartTimestamp < blockedEndDateTimestamp) {
+        console.log(
+            `blocked start  : ${new Date(
+                moment(startDate).tz(provider.timeZone),
+            ).toISOString()} = ${blockedStartDateTimestamp}`,
+        );
+        console.log(
+            `blocked end    : ${new Date(
+                moment(endDate).tz(provider.timeZone),
+            ).toISOString()} = ${blockedEndDateTimestamp}`,
+        );
+
+        const isOverlapped = !(
+            (suggestedStartTimestamp < blockedStartDateTimestamp &&
+                suggestedEndTimestamp < blockedStartDateTimestamp) ||
+            (blockedEndDateTimestamp < suggestedStartTimestamp && blockedEndDateTimestamp < suggestedEndTimestamp)
+        );
+
+        console.log(`isOverlapped = ${isOverlapped}`);
+
+        if (isOverlapped) {
             // the appointment is overlapping with the blocked dates
             if (shift) {
                 // Get apointment date string as YYYY-MM-DD
@@ -88,6 +115,7 @@ const isBlocked = async ({ provider, startDateTime, endDateTime }) => {
             }
         }
     }
+    console.log('return false');
     return false;
 };
 
@@ -183,10 +211,14 @@ const resolvers = {
         getProviderById: async (_, { id }) => await Provider.findById(id).exec(),
         getAppointmentById: async (_, { id }) => await Appointment.find({ id }).exec(),
         getAppointmentsByPeriod: async (_, { startDateTime: periodStart, endDateTime: periodEnd }) => {
-            return await apptFind({ periodStart, periodEnd });
+            const res = await apptFind({ periodStart, periodEnd });
+            console.log(res);
+            return res;
         },
         getAppointmentsByProvider: async (_, { providerId, startDateTime: periodStart, endDateTime: periodEnd }) => {
-            return await apptFind({ providerId, periodStart, periodEnd });
+            const res = await apptFind({ providerId, periodStart, periodEnd });
+            console.log(res);
+            return res;
         },
         getAppointmentsByPatient: async (_, { patientId, startDateTime: periodStart, endDateTime: periodEnd }) => {
             return await apptFind({ patientId, periodStart, periodEnd });
@@ -212,43 +244,58 @@ const resolvers = {
             }
         },
         addAppointment: async (_, { input }) => {
+            console.log(input);
             try {
                 // TODO: Check doctor's availability and overlapping
-                const { providerId, startDateTimeIso, endDateTimeIso } = input;
+                const { provider: providerId, startDateTime: startDateTimeIso, endDateTime: endDateTimeIso } = input;
+                console.log(`providerId = ${providerId}`);
 
-                const provider = await Provider.findById(id).exec();
+                const provider = await Provider.findById(providerId).exec();
                 const startDateTime = new Date(startDateTimeIso);
                 const endDateTime = new Date(endDateTimeIso);
 
+                console.log(`provider = ${provider}`);
+                console.log(`startDateTime = ${startDateTime}`);
+                console.log(`endDateTime = ${endDateTime}`);
+
                 // First check whether the provider's scheduled is blocked during suggested appointment time
-                if (isBlocked({ provider, startDateTime, endDateTime })) {
-                    return `The suggested appointment is within the provider's blocked schedule`;
+                const res = isBlocked({ provider, startDateTime, endDateTime });
+                console.log(`res = ${res}`);
+                if (res) {
+                    const errMsg = `The suggested appointment conflicts with the provider's blocked schedule`;
+                    console.error(errMsg);
+                    return errMsg;
                 }
 
                 // Check whether the provider's scheduled is open
                 // If yes, schedule appointment
                 // If no, check regular hours
-                if (!passScheduledAvailability({ provider, startDateTime, endDateTime })) {
-                    // Check regular hours to see provider's availability
-                    if (!passRegularHours({ provider, startDateTime, endDateTime })) {
-                        return `The provider is not available during the suggested appointment period`;
-                    }
-                }
+                // if (!passScheduledAvailability({ provider, startDateTime, endDateTime })) {
+                //     // Check regular hours to see provider's availability
+                //     if (!passRegularHours({ provider, startDateTime, endDateTime })) {
+                //         const errMsg = `The provider is not available during the suggested appointment period`;
+                //         console.log(errMsg);
+                //         return errMsg;
+                //     }
+                // }
 
-                const response = await Appointment.create(args);
+                const response = await Appointment.create(input);
                 return response;
+                // console.log(`response = ${response}`);
+                // const response2 = await apptFind({ id: response._id });
+                // console.log(`response2 = ${response2}`);
+                // return response2;
             } catch (err) {
+                console.error(err);
                 return err.message;
             }
         },
         updateAppointment: async () => {},
-        updatePatient: async (_, args) => {
-            const { id, ...update } = args;
-            return findOneAndUpdate({ model: Patient, id, update });
+        updatePatient: async (_, { id, input }) => {
+            return findOneAndUpdate({ model: Patient, id, input });
         },
-        updateProvider: async (_, args) => {
-            const { id, ...update } = args;
-            return findOneAndUpdate({ model: Provider, id, update });
+        updateProvider: async (_, { id, input }) => {
+            return findOneAndUpdate({ model: Provider, id, input });
         },
         removePatient: async (_, { id }) => {
             return deleteOne({ model: Patient, id });
