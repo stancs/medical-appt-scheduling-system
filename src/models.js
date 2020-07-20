@@ -53,7 +53,7 @@ const providerSchema = new Schema(
         zipCode: String,
         state: String,
         isAcceptingNewPatient: Boolean,
-        languagesSpoken: String,
+        languagesSpoken: [String],
         npi: String,
         education: {
             medicalSchool: String,

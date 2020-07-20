@@ -4,7 +4,7 @@ const typeDefs = gql`
     scalar Date
     scalar Time
     scalar DateTime
-    scalar JSONObject
+    scalar JSON
 
     type Patient {
         id: ID!
@@ -41,12 +41,12 @@ const typeDefs = gql`
         county: String
         zipCode: String
         isAcceptingNewPatient: Boolean
-        languageSpoken: [String]
+        languagesSpoken: JSON
         npi: String
         education: Education
         biography: String
         affiliation: Affiliation
-        regularShift: JSONObject
+        regularShift: JSON
         # regularShifts
         # {
         #   Monday: [
@@ -69,13 +69,13 @@ const typeDefs = gql`
         # Time zone
         # Should get it from console.log(Intl.DateTimeFormat().resolvedOptions().timeZone) in browser side
         # https://stackoverflow.com/questions/1091372/getting-the-clients-timezone-offset-in-javascript
-        timeZone: String
+        timeZone: String!
     }
 
     type ScheduledShift {
         startDate: String! # YYYY-MM-DD
         endDate: String! # YYYY-MM-DD
-        shift: JSONObject
+        shift: JSON
         # regularShifts
         # {
         #  Monday: [
@@ -105,22 +105,6 @@ const typeDefs = gql`
         hospital: String
     }
 
-    type Shift {
-        dayOfWeek: DayOfWeek!
-        start: Time!
-        end: Time!
-    }
-
-    enum DayOfWeek {
-        MONDAY
-        TUESDAY
-        WEDNESDAY
-        THURSDAY
-        FRIDAY
-        SATURDAY
-        SUNDAY
-    }
-
     type Appointment {
         id: ID!
         patient: Patient
@@ -147,17 +131,62 @@ const typeDefs = gql`
         getAppointmentsByPatient(patientId: ID!, startDateTime: DateTime, endDateTime: DateTime): [Appointment]
     }
 
+    input PatientInput {
+        userName: String!
+        firstName: String!
+        middleName: String
+        lastName: String!
+        email: String
+        phone: String
+        ssn: String
+        addressLine1: String
+        addressLine2: String
+        city: String
+        state: String
+        county: String
+        zipCode: String
+        isSmoker: Boolean
+        birthday: String
+    }
+
+    input ProviderInput {
+        userName: String!
+        firstName: String!
+        middleName: String
+        lastName: String!
+        email: String
+        phone: String
+        addressLine1: String
+        addressLine2: String
+        city: String
+        state: String
+        county: String
+        zipCode: String
+        isAcceptingNewPatient: Boolean
+        languagesSpoken: JSON
+        npi: String
+        education: JSON
+        biography: String
+        affiliation: JSON
+        regularShift: JSON
+        scheduledShifts: JSON
+        blockedShifts: JSON
+        timeZone: String!
+    }
+
+    input AppointmentInput {
+        patientId: String!
+        providerId: String!
+        startDateTimeIso: DateTime
+        endDateTimeIso: DateTime
+        location: String
+        room: String
+    }
+
     type Mutation {
-        addPatient(userName: String!, firstName: String!, lastName: String!, email: String, phone: String): Patient
-        addProvider(userName: String!, firstName: String!, lastName: String!, email: String, phone: String): Provider
-        addAppointment(
-            patientId: String!
-            providerId: String!
-            startDateTimeIso: DateTime
-            endDateTimeIso: DateTime
-            location: String
-            room: String
-        ): Appointment
+        addPatient(input: PatientInput): Patient
+        addProvider(input: ProviderInput): Provider
+        addAppointment(input: AppointmentInput): Appointment
         updateAppointment(id: ID!): Appointment
         cancelAppointment(id: ID!): DeleteResult
         removePatient(id: ID!): DeleteResult

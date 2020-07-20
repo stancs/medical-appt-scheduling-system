@@ -1,16 +1,34 @@
 mutation addPatient {
-  addPatient(
+  addPatient(input: {
     userName: "avery1234",
     firstName: "Avery",
+    middleName: "Eva",
     lastName: "Lee",
     email: "avery@yopmail.com",
     phone: "512-112-2222"
-  ) {
+    addressLine1: "2000 Blackthorn Dr",
+    addressLine2: "Rm 101",
+    city: "Pflugerville",
+    state: "TX",
+    county: "Travis County",
+    zipCode: "78660",
+    isSmoker: false,
+    birthday: "2018-12-11",
+  }) {
     id
     userName
     firstName
+    middleName
     lastName
     email
     phone
+    addressLine1
+    addressLine2
+    city
+    state
+    county
+    zipCode
+    isSmoker
+    birthday
   }
 }

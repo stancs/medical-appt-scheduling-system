@@ -113,7 +113,7 @@ async function addProviders() {
             county: faker.address.county(),
             zipCode: faker.address.zipCode('#####'),
             isAcceptingNewPatient: faker.random.boolean(),
-            languageSpoken: ['English'],
+            languagesSpoken: ['English'],
             npi: faker.random.alphaNumeric(10),
             education: {
                 medicalSchool: faker.company.companyName(0),

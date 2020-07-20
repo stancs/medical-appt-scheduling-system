@@ -1,6 +1,6 @@
 const { Patient, Provider, Appointment } = require('./models');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
-const { GraphQLJSONObject } = require('graphql-type-json');
+const { GraphQLJSON } = require('graphql-type-json');
 
 const { getDayOfWeek } = require('./utils/dates');
 
@@ -174,7 +174,7 @@ const passRegularHours = async ({ provider, startDateTime, endDateTime }) => {
 const resolvers = {
     Date: GraphQLDate,
     DateTime: GraphQLDateTime,
-    JSONObject: GraphQLJSONObject,
+    JSON: GraphQLJSON,
 
     Query: {
         getPatients: async () => await Patient.find({}).exec(),
@@ -193,26 +193,28 @@ const resolvers = {
         },
     },
     Mutation: {
-        addPatient: async (_, args) => {
+        addPatient: async (_, { input }) => {
             try {
-                const response = await Patient.create(args);
+                const response = await Patient.create(input);
                 return response;
             } catch (err) {
                 return err.message;
             }
         },
-        addProvider: async (_, args) => {
+        addProvider: async (_, { input }) => {
+            console.log(input);
             try {
-                const response = await Provider.create(args);
+                const response = await Provider.create(input);
                 return response;
             } catch (err) {
+                console.log(err);
                 return err.message;
             }
         },
-        addAppointment: async (_, args) => {
+        addAppointment: async (_, { input }) => {
             try {
                 // TODO: Check doctor's availability and overlapping
-                const { providerId, startDateTimeIso, endDateTimeIso } = args;
+                const { providerId, startDateTimeIso, endDateTimeIso } = input;
 
                 const provider = await Provider.findById(id).exec();
                 const startDateTime = new Date(startDateTimeIso);
