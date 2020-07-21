@@ -331,7 +331,16 @@ const resolvers = {
         getPatientById: async (_, { id }) => await Patient.findById(id).exec(),
         getProviders: async () => await Provider.find({}).exec(),
         getProviderById: async (_, { id }) => await Provider.findById(id).exec(),
-        getAppointmentById: async (_, { id }) => await Appointment.find({ id }).exec(),
+        getAppointmentById: async (_, { id }) => {
+            const appts = await apptFind({ id });
+
+            // Only return the first one
+            if (appts.length !== 0) {
+                return appts[0];
+            } else {
+                return null;
+            }
+        },
         getAppointmentsByPeriod: async (_, { startDateTime: periodStart, endDateTime: periodEnd }) => {
             const res = await apptFind({ periodStart, periodEnd });
             console.log(res);
