@@ -25,14 +25,10 @@ const resolvers = {
             }
         },
         getAppointmentsByPeriod: async (_, { startDateTime: periodStart, endDateTime: periodEnd }) => {
-            const res = await apptFind({ periodStart, periodEnd });
-            console.log(res);
-            return res;
+            return await apptFind({ periodStart, periodEnd });
         },
         getAppointmentsByProvider: async (_, { providerId, startDateTime: periodStart, endDateTime: periodEnd }) => {
-            const res = await apptFind({ providerId, periodStart, periodEnd });
-            console.log(res);
-            return res;
+            return await apptFind({ providerId, periodStart, periodEnd });
         },
         getAppointmentsByPatient: async (_, { patientId, startDateTime: periodStart, endDateTime: periodEnd }) => {
             return await apptFind({ patientId, periodStart, periodEnd });
@@ -91,6 +87,22 @@ const resolvers = {
                 };
             }
         },
+        updatePatient: async (_, { id, input }) => {
+            const { success, newRecord, message } = await findOneAndUpdate({ model: Patient, id, input });
+            return {
+                success,
+                message,
+                patient: newRecord,
+            };
+        },
+        updateProvider: async (_, { id, input }) => {
+            const { success, newRecord, message } = await findOneAndUpdate({ model: Provider, id, input });
+            return {
+                success,
+                message,
+                provider: newRecord,
+            };
+        },
         updateAppointment: async (_, { id, input }) => {
             try {
                 const { success, message } = await checkSuggestedSchedule(input);
@@ -118,22 +130,6 @@ const resolvers = {
                     message: err.message,
                 };
             }
-        },
-        updatePatient: async (_, { id, input }) => {
-            const { success, newRecord, message } = await findOneAndUpdate({ model: Patient, id, input });
-            return {
-                success,
-                message,
-                patient: newRecord,
-            };
-        },
-        updateProvider: async (_, { id, input }) => {
-            const { success, newRecord, message } = await findOneAndUpdate({ model: Provider, id, input });
-            return {
-                success,
-                message,
-                provider: newRecord,
-            };
         },
         removePatient: async (_, { id }) => {
             return deleteOne({ model: Patient, id });
