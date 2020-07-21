@@ -1,7 +1,7 @@
 {
   "name": "scheduling-system",
   "version": "1.0.0",
-  "description": "",
+  "description": "Medical Appointment Scheduling System",
   "main": "index.js",
   "scripts": {
     "db:clean": "node -r dotenv/config script/mongodb/cleanDb.js",
@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/stancs/scheduling-system.git"
   },
-  "author": "",
+  "author": "Stan Lee",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/stancs/scheduling-system/issues"

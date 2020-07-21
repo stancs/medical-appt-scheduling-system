@@ -6,6 +6,7 @@ const typeDefs = gql`
     scalar DateTime
     scalar JSON
 
+    # Patient information
     type Patient {
         id: ID!
         userName: String
@@ -25,12 +26,14 @@ const typeDefs = gql`
         birthday: String
     }
 
+    # Patient response format after mutation
     type PatientResponse {
         success: Boolean!
         message: String
         patient: Patient
     }
 
+    # Provider information
     type Provider {
         id: ID!
         userName: String
@@ -78,12 +81,15 @@ const typeDefs = gql`
         timeZone: String!
     }
 
+    # Provider response after mutation
     type ProviderResponse {
         success: Boolean!
         message: String
         provider: Provider
     }
 
+    # Provider's schedule shifts information
+    # This shows adjusted schedule during the period starting from 'startDate' to 'endDate'
     type ScheduledShift {
         startDate: String! # YYYY-MM-DD
         endDate: String! # YYYY-MM-DD
@@ -107,16 +113,19 @@ const typeDefs = gql`
         # }
     }
 
+    # Provider's education information
     type Education {
         medicalSchool: String
         residency: String
     }
 
+    # Provider's affiliation information
     type Affiliation {
         medicalGroup: String
         hospital: String
     }
 
+    # Appointment information
     type Appointment {
         id: ID!
         patient: ID!
@@ -127,12 +136,15 @@ const typeDefs = gql`
         room: String
     }
 
+    # Appointment response after mutation
     type AppointmentResponse {
         success: Boolean!
         message: String
         appointment: Appointment
     }
 
+    # Appoinment extended information
+    # This shows patient's and provider's detailed information rather than showing just IDs
     type AppointmentExtended {
         id: ID!
         patient: Patient
@@ -143,12 +155,14 @@ const typeDefs = gql`
         room: String
     }
 
+    # Delete response after delete mutation operation
     type DeleteResponse {
         success: Boolean!
         message: String
         deletedCount: Int
     }
 
+    # Input parameters for Patient data Creation
     input PatientInput {
         userName: String!
         firstName: String!
@@ -167,6 +181,8 @@ const typeDefs = gql`
         birthday: String
     }
 
+    # Input parameters for Patient data Update
+    # This update parameters do not have '!' since any of them can be omiited (Only props that needs to be updated are included)
     input PatientUpdateInput {
         userName: String
         firstName: String
@@ -185,6 +201,7 @@ const typeDefs = gql`
         birthday: String
     }
 
+    # Input parameters for Provider data Creation
     input ProviderInput {
         userName: String!
         firstName: String!
@@ -210,6 +227,8 @@ const typeDefs = gql`
         timeZone: String!
     }
 
+    # Input parameters for Provider data Update
+    # This update parameters do not have '!' since any of them can be omiited (Only props that needs to be updated are included)
     input ProviderUpdateInput {
         userName: String
         firstName: String
@@ -251,6 +270,7 @@ const typeDefs = gql`
         shift: JSON
     }
 
+    # Input parameters for Appointment data Creation
     input AppointmentInput {
         patient: ID!
         provider: ID!
@@ -260,6 +280,8 @@ const typeDefs = gql`
         room: String
     }
 
+    # Input parameters for Appointment data Update
+    # Those props with '!' are all essential information to update an appointment
     input AppointmentUpdateInput {
         patient: ID!
         provider: ID!
