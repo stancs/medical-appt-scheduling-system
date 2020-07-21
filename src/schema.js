@@ -143,24 +143,10 @@ const typeDefs = gql`
         room: String
     }
 
-    type DeleteResult {
-        isSuccess: Boolean
+    type DeleteResponse {
+        success: Boolean!
+        message: String
         deletedCount: Int
-    }
-
-    type Query {
-        getPatients: [Patient]
-        getPatientById(id: ID!): Patient
-        getProviders: [Provider]
-        getProviderById(id: ID!): Provider
-        getAppointmentById(id: ID!): AppointmentExtended
-        getAppointmentsByPeriod(startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
-        getAppointmentsByProvider(
-            providerId: ID!
-            startDateTime: DateTime
-            endDateTime: DateTime
-        ): [AppointmentExtended]
-        getAppointmentsByPatient(patientId: ID!, startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
     }
 
     input PatientInput {
@@ -231,16 +217,33 @@ const typeDefs = gql`
         room: String
     }
 
+    type Query {
+        getPatients: [Patient]
+        getPatientById(id: ID!): Patient
+        getProviders: [Provider]
+        getProviderById(id: ID!): Provider
+        getAppointmentById(id: ID!): AppointmentExtended
+        getAppointmentsByPeriod(startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
+        getAppointmentsByProvider(
+            providerId: ID!
+            startDateTime: DateTime
+            endDateTime: DateTime
+        ): [AppointmentExtended]
+        getAppointmentsByPatient(patientId: ID!, startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
+    }
+
     type Mutation {
+        addAppointment(input: AppointmentInput): AppointmentResponse
         addPatient(input: PatientInput): PatientResponse
         addProvider(input: ProviderInput): ProviderResponse
-        addAppointment(input: AppointmentInput): AppointmentResponse
-        updateAppointment(id: ID!): Appointment
-        cancelAppointment(id: ID!): DeleteResult
-        removePatient(id: ID!): DeleteResult
-        removeProvider(id: ID!): DeleteResult
-        updatePatient(id: ID!, input: PatientInput): Patient
-        updateProvider(id: ID!, input: ProviderInput): Provider
+
+        cancelAppointment(id: ID!): DeleteResponse
+        removePatient(id: ID!): DeleteResponse
+        removeProvider(id: ID!): DeleteResponse
+
+        updateAppointment(id: ID!, input: AppointmentInput): AppointmentResponse
+        updatePatient(id: ID!, input: PatientInput): PatientResponse
+        updateProvider(id: ID!, input: ProviderInput): ProviderResponse
     }
 `;
 

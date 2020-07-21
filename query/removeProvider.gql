@@ -1,0 +1,7 @@
+mutation removeProvider {
+    removeProvider(id: "5f161c62b27e8efb2648fc32") {
+        success
+        message
+        deletedCount
+    }
+}

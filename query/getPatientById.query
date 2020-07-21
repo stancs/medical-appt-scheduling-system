@@ -1,9 +1,0 @@
-query {
-  getPatientById(id: "5f0ff6987a981c978ecb01c2") {
-    id
-    userName
-    firstName
-    lastName
-    email
-  }
-}

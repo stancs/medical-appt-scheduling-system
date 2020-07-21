@@ -27,10 +27,10 @@ const deleteOne = async ({ model, id }) => {
     try {
         const response = await model.deleteOne({ _id: id });
         console.log(response);
-        return { isSuccess: response.ok, deleteCount: response.deletedCount };
+        return { success: response.ok, deletedCount: response.deletedCount };
     } catch (err) {
         console.log(err);
-        return err.message;
+        return { success: false, message: err.message, deletedCount: 0 };
     }
 };
 

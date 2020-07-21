@@ -1,0 +1,41 @@
+query {
+    getProviders {
+        id
+        userName
+        firstName
+        middleName
+        lastName
+        email
+        phone
+        addressLine1
+        addressLine2
+        city
+        state
+        county
+        zipCode
+        isAcceptingNewPatient
+        languagesSpoken
+        npi
+        education {
+            medicalSchool
+            residency
+        }
+        biography
+        affiliation {
+            medicalGroup
+            hospital
+        }
+        regularShift
+        scheduledShifts {
+            startDate
+            endDate
+            shift
+        }
+        blockedShifts {
+            startDate
+            endDate
+            shift
+        }
+        timeZone
+    }
+}
