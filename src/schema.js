@@ -121,8 +121,8 @@ const typeDefs = gql`
         id: ID!
         patient: ID!
         provider: ID!
-        startDateTime: DateTime # Should get it from DateObject.toISOString()
-        endDateTime: DateTime # Should get it from DateObject.toISOString()
+        startDateTime: DateTime! # Should get it from DateObject.toISOString()
+        endDateTime: DateTime! # Should get it from DateObject.toISOString()
         location: String
         room: String
     }
@@ -167,6 +167,24 @@ const typeDefs = gql`
         birthday: String
     }
 
+    input PatientUpdateInput {
+        userName: String
+        firstName: String
+        middleName: String
+        lastName: String
+        email: String
+        phone: String
+        ssn: String
+        addressLine1: String
+        addressLine2: String
+        city: String
+        state: String
+        county: String
+        zipCode: String
+        isSmoker: Boolean
+        birthday: String
+    }
+
     input ProviderInput {
         userName: String!
         firstName: String!
@@ -192,6 +210,31 @@ const typeDefs = gql`
         timeZone: String!
     }
 
+    input ProviderUpdateInput {
+        userName: String
+        firstName: String
+        middleName: String
+        lastName: String
+        email: String
+        phone: String
+        addressLine1: String
+        addressLine2: String
+        city: String
+        state: String
+        county: String
+        zipCode: String
+        isAcceptingNewPatient: Boolean
+        languagesSpoken: [String]
+        npi: String
+        education: EducationInput
+        biography: String
+        affiliation: AffiliationInput
+        regularShift: JSON
+        scheduledShifts: [ScheduledShiftInput]
+        blockedShifts: [ScheduledShiftInput]
+        timeZone: String
+    }
+
     input EducationInput {
         medicalSchool: String
         residency: String
@@ -209,10 +252,19 @@ const typeDefs = gql`
     }
 
     input AppointmentInput {
-        patient: String!
-        provider: String!
-        startDateTime: DateTime
-        endDateTime: DateTime
+        patient: ID!
+        provider: ID!
+        startDateTime: DateTime!
+        endDateTime: DateTime!
+        location: String
+        room: String
+    }
+
+    input AppointmentUpdateInput {
+        patient: ID!
+        provider: ID!
+        startDateTime: DateTime!
+        endDateTime: DateTime!
         location: String
         room: String
     }
@@ -241,9 +293,10 @@ const typeDefs = gql`
         removePatient(id: ID!): DeleteResponse
         removeProvider(id: ID!): DeleteResponse
 
+        # The input for updating appointment is same as the one for creation
         updateAppointment(id: ID!, input: AppointmentInput): AppointmentResponse
-        updatePatient(id: ID!, input: PatientInput): PatientResponse
-        updateProvider(id: ID!, input: ProviderInput): ProviderResponse
+        updatePatient(id: ID!, input: PatientUpdateInput): PatientResponse
+        updateProvider(id: ID!, input: ProviderUpdateInput): ProviderResponse
     }
 `;
 

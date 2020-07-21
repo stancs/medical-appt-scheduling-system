@@ -34,16 +34,22 @@ const deleteOne = async ({ model, id }) => {
     }
 };
 
-const findOneAndUpdate = async ({ model, id, update }) => {
+const findOneAndUpdate = async ({ model, id, input }) => {
     console.log(`id=%{id}`);
-    console.log(`update=\n`, update);
+    console.log(`input=\n`, input);
     try {
-        const response = await model.findOneAndUpdate({ _id: id }, update, { new: true });
+        const response = await model.findOneAndUpdate({ _id: id }, input, { new: true });
         console.log(response);
-        return response;
+        return {
+            success: true,
+            newRecord: response,
+        };
     } catch (err) {
         console.log(err);
-        return err.message;
+        return {
+            success: false,
+            message: err.message,
+        };
     }
 };
 
@@ -259,6 +265,62 @@ const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
     return false;
 };
 
+const checkSuggestedSchedule = async input => {
+    const { provider: providerId, startDateTime: startDateTimeIso, endDateTime: endDateTimeIso } = input;
+    console.log(`providerId = ${providerId}`);
+
+    const provider = await Provider.findById(providerId).exec();
+    const startDateTime = new Date(startDateTimeIso);
+    const endDateTime = new Date(endDateTimeIso);
+
+    console.log(`provider = ${provider}`);
+    console.log(`startDateTime = ${startDateTime}`);
+    console.log(`endDateTime = ${endDateTime}`);
+
+    if (!provider) {
+        const errMsg = 'Searching a provider using the given ID failed';
+        console.error(errMsg);
+        return {
+            success: false,
+            message: errMsg,
+        };
+    }
+
+    // First check whether the provider's scheduled is blocked during suggested appointment time
+    if (isBlocked({ provider, startDateTime, endDateTime })) {
+        const errMsg = `The suggested appointment conflicts with the provider's blocked schedule`;
+        console.error(errMsg);
+        return {
+            success: false,
+            message: errMsg,
+        };
+    }
+
+    // Check whether the provider's scheduled is open
+    if (!isAvailable({ provider, startDateTime, endDateTime })) {
+        const errMsg = `The provider is not available during the suggested appointment period`;
+        console.log(errMsg);
+        return {
+            success: false,
+            message: errMsg,
+        };
+    }
+
+    const isOverlappedWithAnother = await isOverlapped({ provider, startDateTime, endDateTime });
+    if (isOverlappedWithAnother) {
+        const errMsg = `Overlapped appointment`;
+        console.log(errMsg);
+        return {
+            success: false,
+            message: errMsg,
+        };
+    }
+
+    return {
+        success: true,
+    };
+};
+
 const resolvers = {
     Date: GraphQLDate,
     DateTime: GraphQLDateTime,
@@ -317,65 +379,16 @@ const resolvers = {
             }
         },
         addAppointment: async (_, { input }) => {
-            console.log(input);
             try {
-                // TODO: Check doctor's availability and overlapping
-                const { provider: providerId, startDateTime: startDateTimeIso, endDateTime: endDateTimeIso } = input;
-                console.log(`providerId = ${providerId}`);
-
-                const provider = await Provider.findById(providerId).exec();
-                const startDateTime = new Date(startDateTimeIso);
-                const endDateTime = new Date(endDateTimeIso);
-
-                console.log(`provider = ${provider}`);
-                console.log(`startDateTime = ${startDateTime}`);
-                console.log(`endDateTime = ${endDateTime}`);
-
-                if (!provider) {
-                    const errMsg = 'Searching a provider using the given ID failed';
-                    console.error(errMsg);
-                    return {
-                        success: false,
-                        message: errMsg,
-                    };
+                const { success, message } = await checkSuggestedSchedule(input);
+                let appointment;
+                if (success) {
+                    appointment = await Appointment.create(input);
                 }
-
-                // First check whether the provider's scheduled is blocked during suggested appointment time
-                const res = isBlocked({ provider, startDateTime, endDateTime });
-                console.log(`res = ${res}`);
-                if (res) {
-                    const errMsg = `The suggested appointment conflicts with the provider's blocked schedule`;
-                    console.error(errMsg);
-                    return {
-                        success: false,
-                        message: errMsg,
-                    };
-                }
-
-                // Check whether the provider's scheduled is open
-                if (!isAvailable({ provider, startDateTime, endDateTime })) {
-                    const errMsg = `The provider is not available during the suggested appointment period`;
-                    console.log(errMsg);
-                    return {
-                        success: false,
-                        message: errMsg,
-                    };
-                }
-
-                const isOverlappedWithAnother = await isOverlapped({ provider, startDateTime, endDateTime });
-                if (isOverlappedWithAnother) {
-                    const errMsg = `Overlapped appointment`;
-                    console.log(errMsg);
-                    return {
-                        success: false,
-                        message: errMsg,
-                    };
-                }
-
-                const appointment = await Appointment.create(input);
 
                 return {
-                    success: true,
+                    success,
+                    message,
                     appointment,
                 };
             } catch (err) {
@@ -386,12 +399,49 @@ const resolvers = {
                 };
             }
         },
-        updateAppointment: async () => {},
+        updateAppointment: async (_, { id, input }) => {
+            try {
+                const { success, message } = await checkSuggestedSchedule(input);
+                if (success) {
+                    const { success: updateSuccess, newRecord, message: updateMsg } = await findOneAndUpdate({
+                        model: Appointment,
+                        id,
+                        input,
+                    });
+                    return {
+                        success: updateSuccess,
+                        message: updateMsg,
+                        appointment: newRecord,
+                    };
+                } else {
+                    return {
+                        success,
+                        message,
+                    };
+                }
+            } catch (err) {
+                console.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
+        },
         updatePatient: async (_, { id, input }) => {
-            return findOneAndUpdate({ model: Patient, id, input });
+            const { success, newRecord, message } = await findOneAndUpdate({ model: Patient, id, input });
+            return {
+                success,
+                message,
+                patient: newRecord,
+            };
         },
         updateProvider: async (_, { id, input }) => {
-            return findOneAndUpdate({ model: Provider, id, input });
+            const { success, newRecord, message } = await findOneAndUpdate({ model: Provider, id, input });
+            return {
+                success,
+                message,
+                provider: newRecord,
+            };
         },
         removePatient: async (_, { id }) => {
             return deleteOne({ model: Patient, id });

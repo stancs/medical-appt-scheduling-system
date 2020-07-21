@@ -1,16 +1,17 @@
 mutation updatePatient {
     updatePatient(
-        id: "5f110a010c411212d0026fbc"
-        firstName: "LLL"
-        lastName: "OOO"
-        email: "LLLOOO@yopmail.com"
-        phone: "512-112-2222"
+        id: "5f167a4850b07e0593982280"
+        input: { firstName: "StanDaughter", lastName: "Lee", email: "LLL2OOO@yopmail.com", phone: "512-112-2222" }
     ) {
-        id
-        userName
-        firstName
-        lastName
-        email
-        phone
+        success
+        message
+        patient {
+            id
+            userName
+            firstName
+            lastName
+            email
+            phone
+        }
     }
 }
