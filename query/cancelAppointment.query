@@ -1,7 +1,0 @@
-mutation cancelAppointment {
-  cancelAppointment(
-    id: "abc"
-  ) {
-    isSuccess
-  }
-}

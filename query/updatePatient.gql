@@ -1,0 +1,16 @@
+mutation updatePatient {
+    updatePatient(
+        id: "5f110a010c411212d0026fbc"
+        firstName: "LLL"
+        lastName: "OOO"
+        email: "LLLOOO@yopmail.com"
+        phone: "512-112-2222"
+    ) {
+        id
+        userName
+        firstName
+        lastName
+        email
+        phone
+    }
+}

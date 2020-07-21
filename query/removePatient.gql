@@ -1,0 +1,7 @@
+mutation removePatient {
+    removePatient(id: "5f160e62185f2bf47f8d5974") {
+        success
+        message
+        deletedCount
+    }
+}

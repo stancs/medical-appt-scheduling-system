@@ -1,0 +1,12 @@
+{
+  "extensions": {
+    "endpoints": {
+      "Local GraphQL server": {
+        "url": "http://localhost:4000",
+        "headers": {
+          "x-hasura-admin-secret": "your-admin-secret"
+        }
+      }
+    }
+  }
+}
