@@ -3,10 +3,11 @@ const { Schema } = mongoose;
 
 const patientSchema = new Schema(
     {
+        // Account username
         userName: {
             type: String,
-            // unique: true,
-            // index: true,
+            unique: true,
+            index: true,
         },
         firstName: {
             type: String,
@@ -14,10 +15,7 @@ const patientSchema = new Schema(
         },
         middleName: String,
         lastName: String,
-        gender: {
-            type: String,
-            enum: ['M', 'F'],
-        },
+        gender: String,
         email: String,
         phone: String,
         ssn: String,
@@ -28,6 +26,7 @@ const patientSchema = new Schema(
         zipCode: String,
         state: String,
         isSmoker: Boolean,
+        // Birthday: YYYY-MM-DD
         birthday: String,
     },
     { timestamps: true },
@@ -35,10 +34,11 @@ const patientSchema = new Schema(
 
 const providerSchema = new Schema(
     {
+        // Account username
         userName: {
             type: String,
-            // unique: true,
-            // index: true,
+            unique: true,
+            index: true,
         },
         firstName: String,
         middleName: String,

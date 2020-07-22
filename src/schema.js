@@ -6,12 +6,14 @@ const typeDefs = gql`
     scalar DateTime
     scalar JSON
 
+    # Patient information
     type Patient {
         id: ID!
         userName: String
         firstName: String!
         middleName: String
         lastName: String!
+        gender: String
         email: String
         phone: String
         ssn: String
@@ -25,12 +27,14 @@ const typeDefs = gql`
         birthday: String
     }
 
+    # Patient response format after mutation
     type PatientResponse {
         success: Boolean!
         message: String
         patient: Patient
     }
 
+    # Provider information
     type Provider {
         id: ID!
         userName: String
@@ -78,12 +82,15 @@ const typeDefs = gql`
         timeZone: String!
     }
 
+    # Provider response after mutation
     type ProviderResponse {
         success: Boolean!
         message: String
         provider: Provider
     }
 
+    # Provider's schedule shifts information
+    # This shows adjusted schedule during the period starting from 'startDate' to 'endDate'
     type ScheduledShift {
         startDate: String! # YYYY-MM-DD
         endDate: String! # YYYY-MM-DD
@@ -107,32 +114,38 @@ const typeDefs = gql`
         # }
     }
 
+    # Provider's education information
     type Education {
         medicalSchool: String
         residency: String
     }
 
+    # Provider's affiliation information
     type Affiliation {
         medicalGroup: String
         hospital: String
     }
 
+    # Appointment information
     type Appointment {
         id: ID!
         patient: ID!
         provider: ID!
-        startDateTime: DateTime # Should get it from DateObject.toISOString()
-        endDateTime: DateTime # Should get it from DateObject.toISOString()
+        startDateTime: DateTime! # Should get it from DateObject.toISOString()
+        endDateTime: DateTime! # Should get it from DateObject.toISOString()
         location: String
         room: String
     }
 
+    # Appointment response after mutation
     type AppointmentResponse {
         success: Boolean!
         message: String
         appointment: Appointment
     }
 
+    # Appoinment extended information
+    # This shows patient's and provider's detailed information rather than showing just IDs
     type AppointmentExtended {
         id: ID!
         patient: Patient
@@ -143,17 +156,20 @@ const typeDefs = gql`
         room: String
     }
 
+    # Delete response after delete mutation operation
     type DeleteResponse {
         success: Boolean!
         message: String
         deletedCount: Int
     }
 
+    # Input parameters for Patient data Creation
     input PatientInput {
         userName: String!
         firstName: String!
         middleName: String
         lastName: String!
+        gender: String
         email: String
         phone: String
         ssn: String
@@ -167,6 +183,27 @@ const typeDefs = gql`
         birthday: String
     }
 
+    # Input parameters for Patient data Update
+    # This update parameters do not have '!' since any of them can be omiited (Only props that needs to be updated are included)
+    input PatientUpdateInput {
+        userName: String
+        firstName: String
+        middleName: String
+        lastName: String
+        email: String
+        phone: String
+        ssn: String
+        addressLine1: String
+        addressLine2: String
+        city: String
+        state: String
+        county: String
+        zipCode: String
+        isSmoker: Boolean
+        birthday: String
+    }
+
+    # Input parameters for Provider data Creation
     input ProviderInput {
         userName: String!
         firstName: String!
@@ -192,6 +229,33 @@ const typeDefs = gql`
         timeZone: String!
     }
 
+    # Input parameters for Provider data Update
+    # This update parameters do not have '!' since any of them can be omiited (Only props that needs to be updated are included)
+    input ProviderUpdateInput {
+        userName: String
+        firstName: String
+        middleName: String
+        lastName: String
+        email: String
+        phone: String
+        addressLine1: String
+        addressLine2: String
+        city: String
+        state: String
+        county: String
+        zipCode: String
+        isAcceptingNewPatient: Boolean
+        languagesSpoken: [String]
+        npi: String
+        education: EducationInput
+        biography: String
+        affiliation: AffiliationInput
+        regularShift: JSON
+        scheduledShifts: [ScheduledShiftInput]
+        blockedShifts: [ScheduledShiftInput]
+        timeZone: String
+    }
+
     input EducationInput {
         medicalSchool: String
         residency: String
@@ -208,11 +272,23 @@ const typeDefs = gql`
         shift: JSON
     }
 
+    # Input parameters for Appointment data Creation
     input AppointmentInput {
-        patient: String!
-        provider: String!
-        startDateTime: DateTime
-        endDateTime: DateTime
+        patient: ID!
+        provider: ID!
+        startDateTime: DateTime!
+        endDateTime: DateTime!
+        location: String
+        room: String
+    }
+
+    # Input parameters for Appointment data Update
+    # Those props with '!' are all essential information to update an appointment
+    input AppointmentUpdateInput {
+        patient: ID!
+        provider: ID!
+        startDateTime: DateTime!
+        endDateTime: DateTime!
         location: String
         room: String
     }
@@ -241,9 +317,10 @@ const typeDefs = gql`
         removePatient(id: ID!): DeleteResponse
         removeProvider(id: ID!): DeleteResponse
 
+        # The input for updating appointment is same as the one for creation
         updateAppointment(id: ID!, input: AppointmentInput): AppointmentResponse
-        updatePatient(id: ID!, input: PatientInput): PatientResponse
-        updateProvider(id: ID!, input: ProviderInput): ProviderResponse
+        updatePatient(id: ID!, input: PatientUpdateInput): PatientResponse
+        updateProvider(id: ID!, input: ProviderUpdateInput): ProviderResponse
     }
 `;
 

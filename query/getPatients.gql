@@ -3,7 +3,18 @@ query {
         id
         userName
         firstName
+        middleName
         lastName
+        gender
         email
+        phone
+        addressLine1
+        addressLine2
+        city
+        state
+        county
+        zipCode
+        isSmoker
+        birthday
     }
 }
