@@ -11,8 +11,9 @@ const {
     ADD_APPOINTMENT,
 } = require('./__gqls');
 const { addPatients, addProviders, addAppointments, getPatients, getProviders } = require('./__db');
+const { patientInput, providerInput } = require('./__inputs');
 
-describe.skip('Queries', () => {
+describe('Queries', () => {
     beforeEach(async () => {
         await cleanDb();
     });
@@ -92,132 +93,11 @@ describe.skip('Queries', () => {
 });
 
 describe('Mutations', () => {
-    const patientInput = {
-        userName: 'avery1234',
-        firstName: 'Avery',
-        middleName: 'Eva',
-        lastName: 'Lee',
-        email: 'avery@yopmail.com',
-        phone: '512-112-2222',
-        addressLine1: '2000 Blackthorn Dr',
-        addressLine2: 'Rm 101',
-        city: 'Pflugerville',
-        state: 'TX',
-        county: 'Travis County',
-        zipCode: '78660',
-        isSmoker: false,
-        birthday: '2018-12-11',
-    };
-
-    const providerInput = {
-        userName: 'christian1234',
-        firstName: 'Christian',
-        middleName: 'Lydia',
-        lastName: 'Dovis',
-        email: 'christian@yopmail.com',
-        phone: '512-112-2222',
-        addressLine1: '1235 Blackthorn Dr',
-        addressLine2: 'Rm 101',
-        city: 'Pflugerville',
-        state: 'TX',
-        county: 'Travis County',
-        zipCode: '78660',
-        isAcceptingNewPatient: true,
-        languagesSpoken: ['English', 'Spanish'],
-        npi: '1234234',
-        education: {
-            medicalSchool: 'Harvard University',
-            residency: 'Yale University',
-        },
-        biography: 'I studied hard',
-        affiliation: {
-            medicalGroup: 'Saint Andrew Medical Group',
-            hospital: 'Saint Paul Hospital',
-        },
-        regularShift: {
-            Monday: [
-                {
-                    start: '09:00',
-                    end: '12:00',
-                },
-                {
-                    start: '13:00',
-                    end: '17:00',
-                },
-            ],
-            Tuesday: [
-                {
-                    start: '09:00',
-                    end: '12:00',
-                },
-                {
-                    start: '13:00',
-                    end: '17:00',
-                },
-            ],
-            Wednesday: [
-                {
-                    start: '09:00',
-                    end: '12:00',
-                },
-                {
-                    start: '13:00',
-                    end: '17:00',
-                },
-            ],
-        },
-        scheduledShifts: [
-            {
-                startDate: '2020-10-01',
-                endDate: '2020-10-30',
-                shift: {
-                    Monday: [
-                        {
-                            start: '09:00',
-                            end: '12:00',
-                        },
-                        {
-                            start: '13:00',
-                            end: '18:00',
-                        },
-                    ],
-                    Tuesday: [
-                        {
-                            start: '09:00',
-                            end: '12:00',
-                        },
-                        {
-                            start: '13:00',
-                            end: '18:00',
-                        },
-                    ],
-                    Wednesday: [
-                        {
-                            start: '09:00',
-                            end: '12:00',
-                        },
-                        {
-                            start: '13:00',
-                            end: '18:00',
-                        },
-                    ],
-                },
-            },
-        ],
-        blockedShifts: [
-            {
-                startDate: '2020-10-10',
-                endDate: '2020-10-13',
-            },
-        ],
-        timeZone: 'America/Chicago',
-    };
-
     beforeEach(async () => {
         await cleanDb();
     });
 
-    it.skip('adds a patient', async () => {
+    it('adds a patient', async () => {
         const { server } = constructTestServer({
             context: () => {},
         });
@@ -239,7 +119,7 @@ describe('Mutations', () => {
         }
     });
 
-    it.skip('adds a provider', async () => {
+    it('adds a provider', async () => {
         const { server } = constructTestServer({
             context: () => {},
         });
@@ -317,96 +197,121 @@ describe('Mutations', () => {
     });
 });
 
-describe.skip('Cases for adding an appointment', () => {
-    it('attemps to add an appointment that conflicts with blocked schedule', async () => {
+describe('Cases for adding an appointment', () => {
+    let patient, provider;
+
+    let mutate;
+
+    beforeAll(async () => {
+        await cleanDb();
+
         const { server } = constructTestServer({
             context: () => {},
         });
 
-        const { mutate } = createTestClient(server);
+        ({ mutate } = createTestClient(server));
+
+        const resPatient = await mutate({
+            mutation: ADD_PATIENT,
+            variables: {
+                input: patientInput,
+            },
+        });
+
+        patient = resPatient.data.addPatient.patient;
+
+        const resProvider = await mutate({
+            mutation: ADD_PROVIDER,
+            variables: {
+                input: providerInput,
+            },
+        });
+
+        provider = resProvider.data.addProvider.provider;
+
+        console.log(`patient: \n`, patient);
+        console.log(`provider: \n`, provider);
+    });
+
+    it('attemps to add an appointment that conflicts with blocked schedule', async () => {
+        const input = {
+            patient: patient.id,
+            provider: provider.id,
+            startDateTime: '2020-10-12T14:00:00Z',
+            endDateTime: '2020-10-12T15:00:00Z',
+            location: 'Anderson Mill-Austin, TX',
+            room: 'Rm10',
+        };
+
+        console.log(input);
+
         const res = await mutate({
             mutation: ADD_APPOINTMENT,
             variables: {
-                input: {
-                    patient: '5f15fa10be9019eb91c1f39b',
-                    provider: '5f15fa10be9019eb91c1f39c',
-                    startDateTime: '2020-10-12T14:00:00Z',
-                    endDateTime: '2020-10-12T15:00:00Z',
-                    location: 'Anderson Mill-Austin, TX',
-                    room: 'Rm10',
-                },
+                input,
             },
         });
-        // expect(res.data.login.token).toEqual('YUBhLmE=');
-        console.log(util.inspect(res.data.addAppointment, false, 10, true));
+
+        expect(res.data.addAppointment.success).toEqual(false);
+        expect(res.data.addAppointment.message).toMatch(/blocked schedule/);
     });
 
     it('attemps to add an appointment that is within available schedule', async () => {
-        const { server } = constructTestServer({
-            context: () => {},
-        });
+        const input = {
+            patient: patient.id,
+            provider: provider.id,
+            startDateTime: '2020-10-19T15:00:00Z',
+            endDateTime: '2020-10-19T16:00:00Z',
+            location: 'Anderson Mill-Austin, TX',
+            room: 'Rm10',
+        };
 
-        const { mutate } = createTestClient(server);
         const res = await mutate({
             mutation: ADD_APPOINTMENT,
             variables: {
-                input: {
-                    patient: '5f15fa10be9019eb91c1f39b',
-                    provider: '5f15fa10be9019eb91c1f39c',
-                    startDateTime: '2020-10-19T15:00:00Z',
-                    endDateTime: '2020-10-19T16:00:00Z',
-                    location: 'Anderson Mill-Austin, TX',
-                    room: 'Rm10',
-                },
+                input,
             },
         });
-        // expect(res.data.login.token).toEqual('YUBhLmE=');
-        console.log(util.inspect(res.data.addAppointment, false, 10, true));
+
+        expect(res.data.addAppointment.success).toEqual(true);
     });
 
     it('attemps to add an appointment that is not within available schedule, but in regular hours', async () => {
-        const { server } = constructTestServer({
-            context: () => {},
-        });
-
-        const { mutate } = createTestClient(server);
+        const input = {
+            patient: patient.id,
+            provider: provider.id,
+            startDateTime: '2020-11-17T15:00:00Z',
+            endDateTime: '2020-11-17T16:00:00Z',
+            location: 'Anderson Mill-Austin, TX',
+            room: 'Rm10',
+        };
         const res = await mutate({
             mutation: ADD_APPOINTMENT,
             variables: {
-                input: {
-                    patient: '5f15fa10be9019eb91c1f39b',
-                    provider: '5f15fa10be9019eb91c1f39c',
-                    startDateTime: '2020-11-17T15:00:00Z',
-                    endDateTime: '2020-11-17T16:00:00Z',
-                    location: 'Anderson Mill-Austin, TX',
-                    room: 'Rm10',
-                },
+                input,
             },
         });
-        // expect(res.data.login.token).toEqual('YUBhLmE=');
-        console.log(util.inspect(res.data.addAppointment, false, 10, true));
+
+        expect(res.data.addAppointment.success).toEqual(true);
     });
 
     it('attemps to add an appointment that is not within available schedule, but in regular hours, but overlapping', async () => {
-        const { server } = constructTestServer({
-            context: () => {},
-        });
-
-        const { mutate } = createTestClient(server);
+        const input = {
+            patient: patient.id,
+            provider: provider.id,
+            startDateTime: '2020-11-17T15:00:00Z',
+            endDateTime: '2020-11-17T16:00:00Z',
+            location: 'Anderson Mill-Austin, TX',
+            room: 'Rm10',
+        };
         const res = await mutate({
             mutation: ADD_APPOINTMENT,
             variables: {
-                input: {
-                    patient: '5f15fa10be9019eb91c1f39b',
-                    provider: '5f15fa10be9019eb91c1f39c',
-                    startDateTime: '2020-11-17T15:00:00Z',
-                    endDateTime: '2020-11-17T16:00:00Z',
-                    location: 'Anderson Mill-Austin, TX',
-                    room: 'Rm10',
-                },
+                input,
             },
         });
-        // expect(res.data.login.token).toEqual('YUBhLmE=');
-        console.log(util.inspect(res.data.addAppointment, false, 10, true));
+
+        expect(res.data.addAppointment.success).toEqual(false);
+        expect(res.data.addAppointment.message).toMatch(/Overlapped/);
     });
 });
