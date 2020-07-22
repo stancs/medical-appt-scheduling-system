@@ -12,12 +12,12 @@ const {
 } = require('./__gqls');
 const { addPatients, addProviders, addAppointments, getPatients, getProviders } = require('./__db');
 
-describe('Queries', () => {
+describe.skip('Queries', () => {
     beforeEach(async () => {
         await cleanDb();
     });
 
-    it.skip('fetches list of patients', async () => {
+    it('fetches list of patients', async () => {
         // create an instance of ApolloServer that mocks out context, while reusing
         // existing dataSources, resolvers, and typeDefs.
         const { server } = constructTestServer();
@@ -29,14 +29,14 @@ describe('Queries', () => {
         // to run queries against our instance of ApolloServer
         const { query } = createTestClient(server);
         const res = await query({ query: GET_PATIENTS });
-        // expect(res).toMatchSnapshot();
+
         expect(res.data.getPatients[0].id).toEqual(patients[0]._id.toString());
         expect(res.data.getPatients[0].userName).toEqual(patients[0].userName);
         expect(res.data.getPatients[0].firstName).toEqual(patients[0].firstName);
         expect(res.data.getPatients[0].lastName).toEqual(patients[0].lastName);
     });
 
-    it.skip('fetches list of providers', async () => {
+    it('fetches list of providers', async () => {
         const { server } = constructTestServer();
 
         const providers = await addProviders(2);
@@ -60,7 +60,7 @@ describe('Queries', () => {
 
         // Just randomly add appointments
         const appointments = await addAppointments(patients, providers, numAppts);
-        console.log(appointments);
+        // console.log(appointments);
 
         const { query } = createTestClient(server);
 
@@ -70,8 +70,8 @@ describe('Queries', () => {
 
         const startIsoStr = now.toISOString();
         const endIsoStr = new Date(monthLaterUnixTimestamp).toISOString();
-        console.log(`startIsoStr = ${startIsoStr}`);
-        console.log(`endIsoStr = ${endIsoStr}`);
+        // console.log(`startIsoStr = ${startIsoStr}`);
+        // console.log(`endIsoStr = ${endIsoStr}`);
 
         const res = await query({
             query: GET_APPOINTMENTS_BY_PERIOD,
@@ -91,154 +91,173 @@ describe('Queries', () => {
     });
 });
 
-describe.skip('Mutations', () => {
-    it('adds a patient', async () => {
+describe('Mutations', () => {
+    const patientInput = {
+        userName: 'avery1234',
+        firstName: 'Avery',
+        middleName: 'Eva',
+        lastName: 'Lee',
+        email: 'avery@yopmail.com',
+        phone: '512-112-2222',
+        addressLine1: '2000 Blackthorn Dr',
+        addressLine2: 'Rm 101',
+        city: 'Pflugerville',
+        state: 'TX',
+        county: 'Travis County',
+        zipCode: '78660',
+        isSmoker: false,
+        birthday: '2018-12-11',
+    };
+
+    const providerInput = {
+        userName: 'christian1234',
+        firstName: 'Christian',
+        middleName: 'Lydia',
+        lastName: 'Dovis',
+        email: 'christian@yopmail.com',
+        phone: '512-112-2222',
+        addressLine1: '1235 Blackthorn Dr',
+        addressLine2: 'Rm 101',
+        city: 'Pflugerville',
+        state: 'TX',
+        county: 'Travis County',
+        zipCode: '78660',
+        isAcceptingNewPatient: true,
+        languagesSpoken: ['English', 'Spanish'],
+        npi: '1234234',
+        education: {
+            medicalSchool: 'Harvard University',
+            residency: 'Yale University',
+        },
+        biography: 'I studied hard',
+        affiliation: {
+            medicalGroup: 'Saint Andrew Medical Group',
+            hospital: 'Saint Paul Hospital',
+        },
+        regularShift: {
+            Monday: [
+                {
+                    start: '09:00',
+                    end: '12:00',
+                },
+                {
+                    start: '13:00',
+                    end: '17:00',
+                },
+            ],
+            Tuesday: [
+                {
+                    start: '09:00',
+                    end: '12:00',
+                },
+                {
+                    start: '13:00',
+                    end: '17:00',
+                },
+            ],
+            Wednesday: [
+                {
+                    start: '09:00',
+                    end: '12:00',
+                },
+                {
+                    start: '13:00',
+                    end: '17:00',
+                },
+            ],
+        },
+        scheduledShifts: [
+            {
+                startDate: '2020-10-01',
+                endDate: '2020-10-30',
+                shift: {
+                    Monday: [
+                        {
+                            start: '09:00',
+                            end: '12:00',
+                        },
+                        {
+                            start: '13:00',
+                            end: '18:00',
+                        },
+                    ],
+                    Tuesday: [
+                        {
+                            start: '09:00',
+                            end: '12:00',
+                        },
+                        {
+                            start: '13:00',
+                            end: '18:00',
+                        },
+                    ],
+                    Wednesday: [
+                        {
+                            start: '09:00',
+                            end: '12:00',
+                        },
+                        {
+                            start: '13:00',
+                            end: '18:00',
+                        },
+                    ],
+                },
+            },
+        ],
+        blockedShifts: [
+            {
+                startDate: '2020-10-10',
+                endDate: '2020-10-13',
+            },
+        ],
+        timeZone: 'America/Chicago',
+    };
+
+    beforeEach(async () => {
+        await cleanDb();
+    });
+
+    it.skip('adds a patient', async () => {
         const { server } = constructTestServer({
             context: () => {},
         });
 
         const { mutate } = createTestClient(server);
+
+        const input = patientInput;
+
         const res = await mutate({
             mutation: ADD_PATIENT,
             variables: {
-                input: {
-                    userName: 'avery1234',
-                    firstName: 'Avery',
-                    middleName: 'Eva',
-                    lastName: 'Lee',
-                    email: 'avery@yopmail.com',
-                    phone: '512-112-2222',
-                    addressLine1: '2000 Blackthorn Dr',
-                    addressLine2: 'Rm 101',
-                    city: 'Pflugerville',
-                    state: 'TX',
-                    county: 'Travis County',
-                    zipCode: '78660',
-                    isSmoker: false,
-                    birthday: '2018-12-11',
-                },
+                input,
             },
         });
-        // expect(res.data.login.token).toEqual('YUBhLmE=');
-        console.log(util.inspect(res.data.addPatient, false, 10, true));
+
+        const patientRes = res.data.addPatient;
+        for (const prop in input) {
+            expect(res.data.addPatient.patient[prop]).toEqual(input[prop]);
+        }
     });
 
-    it('adds a provider', async () => {
+    it.skip('adds a provider', async () => {
         const { server } = constructTestServer({
             context: () => {},
         });
 
         const { mutate } = createTestClient(server);
+
+        const input = providerInput;
         const res = await mutate({
             mutation: ADD_PROVIDER,
             variables: {
-                input: {
-                    userName: 'christian1234',
-                    firstName: 'Christian',
-                    middleName: 'Lydia',
-                    lastName: 'Dovis',
-                    email: 'christian@yopmail.com',
-                    phone: '512-112-2222',
-                    addressLine1: '1235 Blackthorn Dr',
-                    addressLine2: 'Rm 101',
-                    city: 'Pflugerville',
-                    state: 'TX',
-                    county: 'Travis County',
-                    zipCode: '78660',
-                    isAcceptingNewPatient: true,
-                    languagesSpoken: ['English', 'Spanish'],
-                    npi: '1234234',
-                    education: {
-                        medicalSchool: 'Harvard University',
-                        residency: 'Yale University',
-                    },
-                    biography: 'I studied hard',
-                    affiliation: {
-                        medicalGroup: 'Saint Andrew Medical Group',
-                        hospital: 'Saint Paul Hospital',
-                    },
-                    regularShift: {
-                        Monday: [
-                            {
-                                start: '09:00',
-                                end: '12:00',
-                            },
-                            {
-                                start: '13:00',
-                                end: '17:00',
-                            },
-                        ],
-                        Tuesday: [
-                            {
-                                start: '09:00',
-                                end: '12:00',
-                            },
-                            {
-                                start: '13:00',
-                                end: '17:00',
-                            },
-                        ],
-                        Wednesday: [
-                            {
-                                start: '09:00',
-                                end: '12:00',
-                            },
-                            {
-                                start: '13:00',
-                                end: '17:00',
-                            },
-                        ],
-                    },
-                    scheduledShifts: [
-                        {
-                            startDate: '2020-10-01',
-                            endDate: '2020-10-30',
-                            shift: {
-                                Monday: [
-                                    {
-                                        start: '09:00',
-                                        end: '12:00',
-                                    },
-                                    {
-                                        start: '13:00',
-                                        end: '18:00',
-                                    },
-                                ],
-                                Tuesday: [
-                                    {
-                                        start: '09:00',
-                                        end: '12:00',
-                                    },
-                                    {
-                                        start: '13:00',
-                                        end: '18:00',
-                                    },
-                                ],
-                                Wednesday: [
-                                    {
-                                        start: '09:00',
-                                        end: '12:00',
-                                    },
-                                    {
-                                        start: '13:00',
-                                        end: '18:00',
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                    blockedShifts: [
-                        {
-                            startDate: '2020-10-10',
-                            endDate: '2020-10-13',
-                        },
-                    ],
-                    timeZone: 'America/Chicago',
-                },
+                input,
             },
         });
-        // expect(res.data.login.token).toEqual('YUBhLmE=');
-        console.log(util.inspect(res.data.addProvider, false, 10, true));
+
+        // Remove id since it will change whenever we test
+        delete res.data.addProvider.provider.id;
+
+        expect(res.data.addProvider).toMatchSnapshot();
     });
 
     it('adds an appointment', async () => {
@@ -247,21 +266,54 @@ describe.skip('Mutations', () => {
         });
 
         const { mutate } = createTestClient(server);
+
+        const resPatient = await mutate({
+            mutation: ADD_PATIENT,
+            variables: {
+                input: patientInput,
+            },
+        });
+
+        const patientId = resPatient.data.addPatient.patient.id;
+
+        const resProvider = await mutate({
+            mutation: ADD_PROVIDER,
+            variables: {
+                input: providerInput,
+            },
+        });
+
+        const providerId = resProvider.data.addProvider.provider.id;
+
+        console.log(`patientId: ${patientId}`);
+        console.log(`providerId: ${providerId}`);
+
+        const input = {
+            patient: patientId,
+            provider: providerId,
+            startDateTime: '2020-10-20T15:00:00Z',
+            endDateTime: '2020-10-20T16:00:00Z',
+            location: 'Anderson Mill-Austin, TX',
+            room: 'Rm10',
+        };
         const res = await mutate({
             mutation: ADD_APPOINTMENT,
             variables: {
-                input: {
-                    patient: '5f15fa10be9019eb91c1f39b',
-                    provider: '5f15fa10be9019eb91c1f39c',
-                    startDateTime: '2020-10-20T15:00:00Z',
-                    endDateTime: '2020-10-20T16:00:00Z',
-                    location: 'Anderson Mill-Austin, TX',
-                    room: 'Rm10',
-                },
+                input,
             },
         });
-        // expect(res.data.login.token).toEqual('YUBhLmE=');
-        console.log(util.inspect(res.data.addAppointment, false, 10, true));
+
+        expect(res.data.addAppointment.success).toEqual(true);
+        expect(res.data.addAppointment.appointment.patient).toEqual(patientId);
+        expect(res.data.addAppointment.appointment.provider).toEqual(providerId);
+        expect(new Date(res.data.addAppointment.appointment.startDateTime).getTime()).toEqual(
+            new Date(input.startDateTime).getTime(),
+        );
+        expect(new Date(res.data.addAppointment.appointment.endDateTime).getTime()).toEqual(
+            new Date(input.endDateTime).getTime(),
+        );
+        expect(res.data.addAppointment.appointment.location).toEqual(input.location);
+        expect(res.data.addAppointment.appointment.room).toEqual(input.room);
     });
 });
 

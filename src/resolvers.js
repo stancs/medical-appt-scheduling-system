@@ -69,11 +69,12 @@ const resolvers = {
         addAppointment: async (_, { input }) => {
             try {
                 const { success, message } = await checkSuggestedSchedule(input);
+                console.log(`Check suggested schedule: success=${success}, message=${message}`);
                 let appointment;
                 if (success) {
                     appointment = await Appointment.create(input);
                 }
-
+                log.debug(`appointment = \n`, appointment);
                 return {
                     success,
                     message,
