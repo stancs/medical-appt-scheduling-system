@@ -311,12 +311,10 @@ const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
  * @param {object} input Input parameters
  */
 const checkSuggestedSchedule = async input => {
-    const { provider: providerId, startDateTime: startDateTimeIso, endDateTime: endDateTimeIso } = input;
+    const { provider: providerId, startDateTime, endDateTime } = input;
     log.debug(`providerId = ${providerId}`);
 
     const provider = await Provider.findById(providerId).exec();
-    const startDateTime = new Date(startDateTimeIso);
-    const endDateTime = new Date(endDateTimeIso);
 
     log.debug(`provider = \n`, provider);
     log.debug(`startDateTime = ${startDateTime}`);

@@ -56,17 +56,19 @@ describe('Queries', () => {
         const patients = await addPatients(3);
         const providers = await addProviders(3);
 
+        const numAppts = 2;
+
         // Just randomly add appointments
-        const appointments = await addAppointments(patients, providers, 2);
+        const appointments = await addAppointments(patients, providers, numAppts);
         console.log(appointments);
 
         const { query } = createTestClient(server);
 
         const now = new Date();
-        const nowUnixTimestamp = now.getTime();
         const monthLaterUnixTimestamp = new Date(now).setMonth(now.getMonth() + 1);
+        const monthLater = new Date(monthLaterUnixTimestamp);
 
-        const startIsoStr = new Date(nowUnixTimestamp).toISOString();
+        const startIsoStr = now.toISOString();
         const endIsoStr = new Date(monthLaterUnixTimestamp).toISOString();
         console.log(`startIsoStr = ${startIsoStr}`);
         console.log(`endIsoStr = ${endIsoStr}`);
@@ -78,9 +80,14 @@ describe('Queries', () => {
                 endDateTime: endIsoStr,
             },
         });
-        console.log(res);
 
-        // expect(res.data.getAppointments[0].id).toEqual(providers[0]._id.toString());
+        expect(res.data.getAppointmentsByPeriod.length).toBe(numAppts);
+        expect(new Date(res.data.getAppointmentsByPeriod[0].startDateTime).getTime()).toBeGreaterThanOrEqual(
+            now.getTime(),
+        );
+        expect(new Date(res.data.getAppointmentsByPeriod[0].endDateTime).getTime()).toBeLessThanOrEqual(
+            monthLater.getTime(),
+        );
     });
 });
 

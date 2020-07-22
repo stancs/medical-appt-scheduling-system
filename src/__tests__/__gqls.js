@@ -91,7 +91,7 @@ const GET_APPOINTMENT_BY_ID = gql`
 `;
 
 const GET_APPOINTMENTS_BY_PERIOD = gql`
-    query getAppointmentsByPeriod($startDateTime: String, $endDateTime: String) {
+    query getAppointmentsByPeriod($startDateTime: DateTime, $endDateTime: DateTime) {
         getAppointmentsByPeriod(startDateTime: $startDateTime, endDateTime: $endDateTime) {
             id
             patient {
