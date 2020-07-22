@@ -34,10 +34,6 @@ const encodeMongoURI = urlString => {
 // https://mongoosejs.com/docs/migrating_to_5.html
 const encodedMongoURI = encodeMongoURI(process.env.MONGO_DB_URL);
 
-// mongoose.set('useUnifiedTopology', true);
-// mongoose.set('useCreateIndex', true);
-// mongoose.set('useFindAndModify', false);
-
 mongoose.connect(encodedMongoURI, {
     useCreateIndex: true,
     useFindAndModify: false,

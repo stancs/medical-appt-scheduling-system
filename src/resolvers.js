@@ -52,7 +52,6 @@ const resolvers = {
             }
         },
         addProvider: async (_, { input }) => {
-            console.log(input);
             try {
                 const provider = await Provider.create(input);
                 return {

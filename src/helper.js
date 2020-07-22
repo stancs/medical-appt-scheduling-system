@@ -4,6 +4,15 @@ const { Provider, Appointment } = require('./models');
 const { log } = require('./logger');
 const { getDayOfWeek, printTimes } = require('./utils/dates');
 
+/**
+ * Find appointment records by Appointment ID, Provider ID, Patient ID, and period.
+ * This call will populate associated provider and patient data and attach them
+ * @param {string} Object.id            Appointment doc Object ID string
+ * @param {string} Object.providerId    Provider ID
+ * @param {string} Object.patientId     Patient ID
+ * @param {object} Object.periodStart   Starting point of the given period
+ * @param {object} Object.periodEnd     Ending point of the given period
+ */
 const apptFind = async ({ id, providerId, patientId, periodStart, periodEnd }) => {
     return await Appointment.find({
         ...(id && { _id: id }),
@@ -22,6 +31,11 @@ const apptFind = async ({ id, providerId, patientId, periodStart, periodEnd }) =
         .exec();
 };
 
+/**
+ * Delete a record with the given ID from the specified model
+ * @param {object} Object.model     Model
+ * @param {string} Object.id        Document's Object ID string
+ */
 const deleteOne = async ({ model, id }) => {
     try {
         const response = await model.deleteOne({ _id: id });
@@ -33,6 +47,12 @@ const deleteOne = async ({ model, id }) => {
     }
 };
 
+/**
+ * Update a record with the given ID from the specified model
+ * @param {object} Object.model     Model
+ * @param {string} Object.id        Document's Object ID string
+ * @param {object} Object.input     Input props that needs to be updated
+ */
 const findOneAndUpdate = async ({ model, id, input }) => {
     try {
         const response = await model.findOneAndUpdate({ _id: id }, input, { new: true });
@@ -50,6 +70,12 @@ const findOneAndUpdate = async ({ model, id, input }) => {
     }
 };
 
+/**
+ * Check the suggested schedule is included in any of the blocked schedules of the provider
+ * @param {object} Object.provider          Provider
+ * @param {object} Object.startDateTime     Suggested schedule start time
+ * @param {object} Object.endDateTime       Suggested schedule end time
+ */
 const isBlocked = ({ provider, startDateTime, endDateTime }) => {
     const { blockedShifts } = provider;
     const suggestedStartTimestamp = startDateTime.getTime();
@@ -67,6 +93,7 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
         log.debug(`blocked date start : ${printTimes(blockedStartDateTimestamp, provider.timeZone)}`);
         log.debug(`blocked date end   : ${printTimes(blockedEndDateTimestamp, provider.timeZone)}`);
 
+        // First check whether the suggested schedule is within the blocked dates
         const isOverlapped = !(
             (suggestedStartTimestamp < blockedStartDateTimestamp &&
                 suggestedEndTimestamp < blockedStartDateTimestamp) ||
@@ -90,6 +117,7 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
                 const dayOfWeek = getDayOfWeek(idx);
                 const schedules = shift[dayOfWeek];
 
+                // Now check with the actual blocked schedules
                 for (const theSchedule of scheduls) {
                     const blockedStartTimestamp = moment(`${appointmentDateStr}T${theSchedule.start}`)
                         .tz(provider.timeZone)
@@ -119,11 +147,19 @@ const isBlocked = ({ provider, startDateTime, endDateTime }) => {
     return false;
 };
 
+/**
+ * Check the suggested schedule from a patient in the available spots of the provider.
+ * We will check the provider's scheduled shifts first, then regular hours
+ * @param {object} Object.provider          Provider
+ * @param {object} Object.startDateTime     Suggested schedule start time
+ * @param {object} Object.endDateTime       Suggested schedule end time
+ */
 const isAvailable = ({ provider, startDateTime, endDateTime }) => {
     const { scheduledShifts, regularShift } = provider;
     const suggestedStartTimestamp = startDateTime.getTime();
     const suggestedEndTimestamp = endDateTime.getTime();
 
+    // Put this value to check whether the suggested schedule is within any of the scheduled shift dates
     let isEverContained = false;
     debugger;
     for (const scheduledShift of scheduledShifts) {
@@ -138,6 +174,7 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
         log.debug(`scheduled date start: ${printTimes(scheduledStartDateTimestamp, provider.timeZone)}`);
         log.debug(`scheduled date end  : ${printTimes(scheduledEndDateTimestamp, provider.timeZone)}`);
 
+        // First check whether the suggested schedule is within the scheduled shift dates
         const isContained =
             scheduledStartDateTimestamp <= suggestedStartTimestamp &&
             suggestedEndTimestamp <= scheduledEndDateTimestamp;
@@ -183,6 +220,7 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
         }
     }
 
+    // If the suggested schedule does not belong to any of the available shifts, then we check the regular hours of the provider
     if (!isEverContained) {
         log.trace('========== (isEverContained === false) ==========');
         // the appointment is overlapping with the blocked dates
@@ -230,6 +268,12 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
     return false;
 };
 
+/**
+ * Check the suggested schedule from a patient overlaps with any of existing schedules of the provider
+ * @param {object} Object.provider          Provider
+ * @param {object} Object.startDateTime     Suggested schedule start time
+ * @param {object} Object.endDateTime       Suggested schedule end time
+ */
 const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
     const suggestedStartTimestamp = startDateTime.getTime();
     const suggestedEndTimestamp = endDateTime.getTime();
@@ -238,6 +282,7 @@ const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
     const farFuture = new Date();
     farFuture.setYear(now.getFullYear() + 100);
 
+    // Find existing appointments of the provider from now to future day(100 year later)
     const appointments = await apptFind({ providerId: provider._id, periodStart: now, periodEnd: farFuture });
 
     for (const appt of appointments) {
@@ -261,6 +306,10 @@ const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
     return false;
 };
 
+/**
+ * Check the suggested schedule by checking the provider's blocked shifts, available shifts, regular hours, and existing appointments
+ * @param {object} input Input parameters
+ */
 const checkSuggestedSchedule = async input => {
     const { provider: providerId, startDateTime: startDateTimeIso, endDateTime: endDateTimeIso } = input;
     log.debug(`providerId = ${providerId}`);
@@ -302,6 +351,7 @@ const checkSuggestedSchedule = async input => {
         };
     }
 
+    // Check whether the provider's schedule is overlapping with the suggested schedule
     const isOverlappedWithAnother = await isOverlapped({ provider, startDateTime, endDateTime });
     if (isOverlappedWithAnother) {
         const errMsg = `Overlapped appointment`;
