@@ -30,9 +30,16 @@ const encodeMongoURI = urlString => {
     }
 };
 
+let dbUrl;
+// For test, we use separate remote Mongo DB
+if (process.env.NODE_ENV === 'test') {
+    dbUrl = process.env.MONGO_DB_TEST_URL;
+} else {
+    dbUrl = process.env.MONGO_DB_REMOTE_URL;
+}
 // Encode connection string to be safe since some password might not be accepted
 // https://mongoosejs.com/docs/migrating_to_5.html
-const encodedMongoURI = encodeMongoURI(process.env.MONGO_DB_URL);
+const encodedMongoURI = encodeMongoURI(dbUrl);
 
 mongoose.connect(encodedMongoURI, {
     useCreateIndex: true,

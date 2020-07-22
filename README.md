@@ -34,9 +34,10 @@ In local test environment, the environment variables are stored in `.env` file. 
 
 Here is the list of the currently used environment variables:
 
-| Env Variable   | Description                                                           |
-| -------------- | --------------------------------------------------------------------- |
-| MONGO_DB_URL   | Mongo DB URL (Current Mongo DB instance is from Mongo Atlas DB)       |
+| Env Variable          | Description                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| MONGO_DB_REMOTE_URL   | Mongo DB Remote URL for regular use (Current Mongo DB instance is from Mongo Atlas DB)   |
+| MONGO_DB_TEST_URL     | Mongo DB Test URL (frequent data deletes during integration test)                        |
 
 The preferred approach to run this Node.js app is to preload the environment variables before running actual app. `npm run start` actually preload the environment variables and run the application.
 
