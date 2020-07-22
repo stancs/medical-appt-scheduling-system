@@ -1,10 +1,20 @@
 const { HttpLink } = require('apollo-link-http');
-const fetch = require('node-fetch');
 const { execute, toPromise } = require('apollo-link');
-
-module.exports.toPromise = toPromise;
+const fetch = require('node-fetch');
 
 const { typeDefs, resolvers, ApolloServer } = require('../');
+const { Patient, Provider, Appointment } = require('../../src/models');
+
+const cleanDb = async () => {
+    const models = [Patient, Provider, Appointment];
+
+    for (const model of models) {
+        const res = await model.deleteMany({}).exec();
+        console.log(
+            `[DeleteAll] model = ${model.collection.collectionName}, isSuccess: ${res.ok}, deletedCount: ${res.deletedCount}`,
+        );
+    }
+};
 
 /**
  * Integration testing utils
@@ -17,8 +27,6 @@ const constructTestServer = () => {
 
     return { server };
 };
-
-module.exports.constructTestServer = constructTestServer;
 
 /**
  * e2e Testing Utils
@@ -46,4 +54,9 @@ const startTestServer = async server => {
     };
 };
 
-module.exports.startTestServer = startTestServer;
+module.exports = {
+    cleanDb,
+    constructTestServer,
+    startTestServer,
+    toPromise,
+};

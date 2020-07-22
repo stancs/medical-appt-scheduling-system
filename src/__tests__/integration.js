@@ -1,159 +1,28 @@
 const { createTestClient } = require('apollo-server-testing');
-const gql = require('graphql-tag');
 const util = require('util');
 
-const { constructTestServer } = require('./__utils');
+const { cleanDb, constructTestServer } = require('./__utils');
+const {
+    GET_PATIENTS,
+    GET_PROVIDERS,
+    GET_APPOINTMENTS_BY_PERIOD,
+    ADD_PATIENT,
+    ADD_PROVIDER,
+    ADD_APPOINTMENT,
+} = require('./__gqls');
+const { addPatients, addProviders, addAppointments, getPatients, getProviders } = require('./__db');
 
-const GET_PATIENTS = gql`
-    query {
-        getPatients {
-            id
-            userName
-            firstName
-            lastName
-            email
-            phone
-            addressLine1
-            addressLine2
-            city
-            state
-            county
-            zipCode
-            isSmoker
-            birthday
-        }
-    }
-`;
+describe('Queries', () => {
+    beforeEach(async () => {
+        await cleanDb();
+    });
 
-const GET_PROVIDERS = gql`
-    query {
-        getProviders {
-            id
-            userName
-            firstName
-            middleName
-            lastName
-            email
-            phone
-            addressLine1
-            addressLine2
-            city
-            state
-            county
-            zipCode
-            isAcceptingNewPatient
-            languagesSpoken
-            npi
-            education {
-                medicalSchool
-                residency
-            }
-            biography
-            affiliation {
-                medicalGroup
-                hospital
-            }
-            regularShift
-            scheduledShifts {
-                startDate
-                endDate
-                shift
-            }
-            blockedShifts {
-                startDate
-                endDate
-                shift
-            }
-            timeZone
-        }
-    }
-`;
-
-const ADD_PATIENT = gql`
-    mutation addPatient($input: PatientInput) {
-        addPatient(input: $input) {
-            id
-            userName
-            firstName
-            middleName
-            lastName
-            email
-            phone
-            addressLine1
-            addressLine2
-            city
-            state
-            county
-            zipCode
-            isSmoker
-            birthday
-        }
-    }
-`;
-
-const ADD_PROVIDER = gql`
-    mutation addProvider($input: ProviderInput) {
-        addProvider(input: $input) {
-            id
-            userName
-            firstName
-            middleName
-            lastName
-            email
-            phone
-            addressLine1
-            addressLine2
-            city
-            state
-            county
-            zipCode
-            isAcceptingNewPatient
-            languagesSpoken
-            npi
-            education {
-                medicalSchool
-                residency
-            }
-            biography
-            affiliation {
-                medicalGroup
-                hospital
-            }
-            regularShift
-            scheduledShifts {
-                startDate
-                endDate
-                shift
-            }
-            blockedShifts {
-                startDate
-                endDate
-                shift
-            }
-            timeZone
-        }
-    }
-`;
-
-const ADD_APPOINTMENT = gql`
-    mutation addAppointment($input: AppointmentInput) {
-        addAppointment(input: $input) {
-            id
-            patient
-            provider
-            startDateTime
-            endDateTime
-            location
-            room
-        }
-    }
-`;
-
-describe.skip('Queries', () => {
     it.skip('fetches list of patients', async () => {
         // create an instance of ApolloServer that mocks out context, while reusing
         // existing dataSources, resolvers, and typeDefs.
         const { server } = constructTestServer();
+
+        const patients = await addPatients(2);
 
         // use our test server as input to the createTestClient fn
         // This will give us an interface, similar to apolloClient.query
@@ -161,25 +30,61 @@ describe.skip('Queries', () => {
         const { query } = createTestClient(server);
         const res = await query({ query: GET_PATIENTS });
         // expect(res).toMatchSnapshot();
-        console.log(util.inspect(res.data.getPatients, false, 10, true));
+        expect(res.data.getPatients[0].id).toEqual(patients[0]._id.toString());
+        expect(res.data.getPatients[0].userName).toEqual(patients[0].userName);
+        expect(res.data.getPatients[0].firstName).toEqual(patients[0].firstName);
+        expect(res.data.getPatients[0].lastName).toEqual(patients[0].lastName);
     });
 
     it.skip('fetches list of providers', async () => {
-        // create an instance of ApolloServer that mocks out context, while reusing
-        // existing dataSources, resolvers, and typeDefs.
         const { server } = constructTestServer();
 
-        // use our test server as input to the createTestClient fn
-        // This will give us an interface, similar to apolloClient.query
-        // to run queries against our instance of ApolloServer
+        const providers = await addProviders(2);
+
         const { query } = createTestClient(server);
         const res = await query({ query: GET_PROVIDERS });
-        // expect(res).toMatchSnapshot();
-        console.log(util.inspect(res.data.getProviders, false, 10, true));
+
+        expect(res.data.getProviders[0].id).toEqual(providers[0]._id.toString());
+        expect(res.data.getProviders[0].userName).toEqual(providers[0].userName);
+        expect(res.data.getProviders[0].firstName).toEqual(providers[0].firstName);
+        expect(res.data.getProviders[0].lastName).toEqual(providers[0].lastName);
+    });
+
+    it('fetches list of appointments by period', async () => {
+        const { server } = constructTestServer();
+
+        const patients = await addPatients(3);
+        const providers = await addProviders(3);
+
+        // Just randomly add appointments
+        const appointments = await addAppointments(patients, providers, 2);
+        console.log(appointments);
+
+        const { query } = createTestClient(server);
+
+        const now = new Date();
+        const nowUnixTimestamp = now.getTime();
+        const monthLaterUnixTimestamp = new Date(now).setMonth(now.getMonth() + 1);
+
+        const startIsoStr = new Date(nowUnixTimestamp).toISOString();
+        const endIsoStr = new Date(monthLaterUnixTimestamp).toISOString();
+        console.log(`startIsoStr = ${startIsoStr}`);
+        console.log(`endIsoStr = ${endIsoStr}`);
+
+        const res = await query({
+            query: GET_APPOINTMENTS_BY_PERIOD,
+            variables: {
+                startDateTime: startIsoStr,
+                endDateTime: endIsoStr,
+            },
+        });
+        console.log(res);
+
+        // expect(res.data.getAppointments[0].id).toEqual(providers[0]._id.toString());
     });
 });
 
-describe('Mutations', () => {
+describe.skip('Mutations', () => {
     it('adds a patient', async () => {
         const { server } = constructTestServer({
             context: () => {},

@@ -65,8 +65,13 @@ https://medium.com/@MisterKevin_js/setting-up-visual-studio-code-for-client-side
 ## References
 
 [Using the Elastic Beanstalk Node.js platform](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_nodejs.container.html)
+
 [Develop & Deploy a Node.js App to AWS Elastic Beanstalk & MongoDB Atlas](https://www.mongodb.com/blog/post/develop-and-deploy-a-nodejs-app-to-aws-elastic-beanstalk-and-mongodb-atlas)
+
 [Using Mongo DB Atlas with AWS ElasticBeanstalk](https://medium.com/@faridhajnal14/using-mongo-db-atlas-with-aws-elasticbeanstalk-5e97d2340453)
+
 [AWS Elastic Beanstalk: Create an application source bundle](https://www.mongodb.com/blog/post/develop-and-deploy-a-nodejs-app-to-aws-elastic-beanstalk-and-mongodb-atlas)
+
 [Epoch Converter](https://www.epochconverter.com/)
+
 [UTC Time](https://www.utctime.net/)

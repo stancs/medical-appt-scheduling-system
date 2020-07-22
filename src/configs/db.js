@@ -42,3 +42,7 @@ mongoose.connect(encodedMongoURI, {
 });
 
 mongoose.connection.once('open', () => console.log(`${chalk.bold.green(' ✓ Connected to Mongo DB')}`));
+
+module.exports = {
+    mongoose,
+};

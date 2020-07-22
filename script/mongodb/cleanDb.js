@@ -1,4 +1,4 @@
-require('../../src/config');
+require('../../src/configs/db');
 const { Patient, Provider, Appointment } = require('../../src/models');
 
 const models = [Patient, Provider, Appointment];
