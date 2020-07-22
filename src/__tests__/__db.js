@@ -3,16 +3,11 @@ const util = require('util');
 
 require('../../src/configs/db');
 const { Patient, Provider, Appointment } = require('../../src/models');
-const { getDayOfWeek, getHHMM } = require('../../src/utils/dates');
+const { getDayOfWeek, getHHMM } = require('../utils/dates');
 
-// Adjust these numbers to create more patients and providers
-const numPatients = 0;
-const numProviders = 1;
-
-const numAppointments = 0;
-
-async function addPatients() {
-    for (let i = 0; i < numPatients; i++) {
+async function addPatients(num) {
+    const dbResults = [];
+    for (let i = 0; i < num; i++) {
         const fakeSsn = `${faker.random.number({ min: 100, max: 999 })}-${faker.random.number({
             min: 10,
             max: 99,
@@ -36,19 +31,19 @@ async function addPatients() {
             isSmoker: faker.random.boolean(),
             birthday: randomPast.toISOString().slice(0, 10),
         };
-        // console.log('[Patient Info]');
-        // console.log(patientInfo);
 
         try {
             const res = await Patient.create(patientInfo);
-            console.log(res);
+            dbResults.push(res);
         } catch (err) {
             console.error(err);
         }
     }
+    return dbResults;
 }
 
-async function addProviders() {
+async function addProviders(num) {
+    const dbResults = [];
     const getDayShift = () => [
         {
             start: getHHMM(faker.random.number({ min: 7, max: 10 }), 0),
@@ -60,7 +55,7 @@ async function addProviders() {
         },
     ];
 
-    for (let i = 0; i < numProviders; i++) {
+    for (let i = 0; i < num; i++) {
         const regularShift = {};
         for (let j = 0; j < 4; j++) {
             const dayOfWeek = getDayOfWeek(faker.random.number(6));
@@ -68,8 +63,6 @@ async function addProviders() {
                 regularShift[dayOfWeek] = getDayShift();
             }
         }
-        console.log('regularShift');
-        console.log(regularShift);
 
         const scheduledShifts = [];
 
@@ -132,11 +125,12 @@ async function addProviders() {
 
         try {
             const res = await Provider.create(providerInfo);
-            console.log(util.inspect(res, false, 10, true));
+            dbResults.push(res);
         } catch (err) {
             console.error(err);
         }
     }
+    return dbResults;
 }
 
 async function getPatients() {
@@ -147,42 +141,38 @@ async function getProviders() {
     return await Provider.find({}).exec();
 }
 
-async function addAppointments(patients, providers) {
+async function addAppointments(patients, providers, num) {
     const now = new Date();
+    const nowUnixTimestamp = now.getTime();
+    const monthLaterUnixTimestamp = new Date(now).setMonth(now.getMonth() + 1);
 
-    for (let i = 0; i < numAppointments; i++) {
+    for (let i = 0; i < num; i++) {
         const patientIdx = faker.random.number(patients.length - 1);
         const providerIdx = faker.random.number(providers.length - 1);
+        const randomStartUnixTimestamp = faker.random.number({ min: nowUnixTimestamp, max: monthLaterUnixTimestamp });
+        const randomEndUnixTimestamp = randomStartUnixTimestamp + 60 * 60 * 1000; // 1 hour later
 
         const appointmentInfo = {
             patient: patients[patientIdx]._id,
             provider: providers[providerIdx]._id,
-            startDateTime: new Date(2020, 06, 19, 14, 30, 0, 0),
-            endDateTime: new Date(2020, 06, 19, 15, 30, 0, 0),
+            startDateTime: new Date(randomStartUnixTimestamp),
+            endDateTime: new Date(randomEndUnixTimestamp),
             location: 'Anderson/Austin, TX',
             room: 'Rm8',
         };
 
         try {
             const res = await Appointment.create(appointmentInfo);
-            console.log(res);
         } catch (err) {
             console.error(err);
         }
     }
 }
 
-async function generate() {
-    await addPatients();
-    await addProviders();
-
-    if (numAppointments > 0) {
-        const patients = await getPatients();
-        const providers = await getProviders();
-
-        await addAppointments(patients, providers);
-    }
-    process.exit(0);
-}
-
-generate();
+module.exports = {
+    addPatients,
+    addProviders,
+    addAppointments,
+    getPatients,
+    getProviders,
+};

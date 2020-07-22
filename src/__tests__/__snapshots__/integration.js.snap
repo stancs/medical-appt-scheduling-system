@@ -1,0 +1,115 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Mutations adds a provider 1`] = `
+Object {
+  "message": null,
+  "provider": Object {
+    "addressLine1": "1235 Blackthorn Dr",
+    "addressLine2": "Rm 101",
+    "affiliation": Object {
+      "hospital": "Saint Paul Hospital",
+      "medicalGroup": "Saint Andrew Medical Group",
+    },
+    "biography": "I studied hard",
+    "blockedShifts": Array [
+      Object {
+        "endDate": "2020-10-13",
+        "shift": null,
+        "startDate": "2020-10-10",
+      },
+    ],
+    "city": "Pflugerville",
+    "county": "Travis County",
+    "education": Object {
+      "medicalSchool": "Harvard University",
+      "residency": "Yale University",
+    },
+    "email": "christian@yopmail.com",
+    "firstName": "Christian",
+    "isAcceptingNewPatient": true,
+    "languagesSpoken": CoreMongooseArray [
+      "English",
+      "Spanish",
+    ],
+    "lastName": "Dovis",
+    "middleName": "Lydia",
+    "npi": "1234234",
+    "phone": "512-112-2222",
+    "regularShift": Object {
+      "Monday": Array [
+        Object {
+          "end": "12:00",
+          "start": "09:00",
+        },
+        Object {
+          "end": "17:00",
+          "start": "13:00",
+        },
+      ],
+      "Tuesday": Array [
+        Object {
+          "end": "12:00",
+          "start": "09:00",
+        },
+        Object {
+          "end": "17:00",
+          "start": "13:00",
+        },
+      ],
+      "Wednesday": Array [
+        Object {
+          "end": "12:00",
+          "start": "09:00",
+        },
+        Object {
+          "end": "17:00",
+          "start": "13:00",
+        },
+      ],
+    },
+    "scheduledShifts": Array [
+      Object {
+        "endDate": "2020-10-30",
+        "shift": Object {
+          "Monday": Array [
+            Object {
+              "end": "12:00",
+              "start": "09:00",
+            },
+            Object {
+              "end": "18:00",
+              "start": "13:00",
+            },
+          ],
+          "Tuesday": Array [
+            Object {
+              "end": "12:00",
+              "start": "09:00",
+            },
+            Object {
+              "end": "18:00",
+              "start": "13:00",
+            },
+          ],
+          "Wednesday": Array [
+            Object {
+              "end": "12:00",
+              "start": "09:00",
+            },
+            Object {
+              "end": "18:00",
+              "start": "13:00",
+            },
+          ],
+        },
+        "startDate": "2020-10-01",
+      },
+    ],
+    "state": "TX",
+    "timeZone": "America/Chicago",
+    "userName": "christian1234",
+    "zipCode": "78660",
+  },
+  "success": true,
+}
+`;

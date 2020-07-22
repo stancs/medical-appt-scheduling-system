@@ -14,6 +14,12 @@ const { getDayOfWeek, printTimes } = require('./utils/dates');
  * @param {object} Object.periodEnd     Ending point of the given period
  */
 const apptFind = async ({ id, providerId, patientId, periodStart, periodEnd }) => {
+    log.debug(`id = ${id}`);
+    log.debug(`providerId = ${providerId}`);
+    log.debug(`patientId  = ${patientId}`);
+    log.debug(`periodStart = ${periodStart}`);
+    log.debug(`periodEnd   = ${periodEnd}`);
+
     return await Appointment.find({
         ...(id && { _id: id }),
         ...(providerId && { provider: providerId }),
@@ -211,10 +217,12 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
                         scheduledStartTimestamp <= suggestedStartTimestamp &&
                         suggestedEndTimestamp <= scheduledEndTimestamp
                     ) {
+                        log.debug('true: suggested time is within the available schedule');
                         return true;
                     }
                 }
             } else {
+                log.debug('false: suggested time within the available dates but out of the available hours');
                 return false;
             }
         }
@@ -274,16 +282,24 @@ const isAvailable = ({ provider, startDateTime, endDateTime }) => {
  * @param {object} Object.startDateTime     Suggested schedule start time
  * @param {object} Object.endDateTime       Suggested schedule end time
  */
-const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
+const isOverlapped = async ({ patientId, provider, startDateTime, endDateTime }) => {
+    log.trace('========== isOverlapped ==========');
     const suggestedStartTimestamp = startDateTime.getTime();
     const suggestedEndTimestamp = endDateTime.getTime();
 
     const now = new Date();
-    const farFuture = new Date();
-    farFuture.setYear(now.getFullYear() + 100);
+    const farFuture = new Date(new Date(now).setYear(now.getFullYear() + 100));
+    log.debug(`now       = ${now.toISOString()}`);
+    log.debug(`farFuture = ${farFuture.toISOString()}`);
 
     // Find existing appointments of the provider from now to future day(100 year later)
-    const appointments = await apptFind({ providerId: provider._id, periodStart: now, periodEnd: farFuture });
+    const appointments = await apptFind({
+        patientId,
+        providerId: provider._id,
+        periodStart: now.toISOString(),
+        periodEnd: farFuture.toISOString(),
+    });
+    log.debug(`appointments = \n`, appointments);
 
     for (const appt of appointments) {
         const apptStartTimestamp = appt.startDateTime.getTime();
@@ -300,9 +316,11 @@ const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
         );
 
         if (isOverlappedWithAppt) {
+            log.debug('true: the suggested schedule is overlapped with the existing schedules');
             return true;
         }
     }
+    log.debug('false: the suggested schedule is NOT overlapped with the existing schedules');
     return false;
 };
 
@@ -311,12 +329,11 @@ const isOverlapped = async ({ provider, startDateTime, endDateTime }) => {
  * @param {object} input Input parameters
  */
 const checkSuggestedSchedule = async input => {
-    const { provider: providerId, startDateTime: startDateTimeIso, endDateTime: endDateTimeIso } = input;
+    const { patient: patientId, provider: providerId, startDateTime, endDateTime } = input;
+    log.debug(`patientId = ${patientId}`);
     log.debug(`providerId = ${providerId}`);
 
     const provider = await Provider.findById(providerId).exec();
-    const startDateTime = new Date(startDateTimeIso);
-    const endDateTime = new Date(endDateTimeIso);
 
     log.debug(`provider = \n`, provider);
     log.debug(`startDateTime = ${startDateTime}`);
@@ -350,21 +367,34 @@ const checkSuggestedSchedule = async input => {
             message: errMsg,
         };
     }
+    try {
+        // Check whether the provider's schedule is overlapping with the suggested schedule
+        const isOverlappedWithAnother = await isOverlapped({
+            patientId,
+            provider,
+            startDateTime,
+            endDateTime,
+        });
+        if (isOverlappedWithAnother) {
+            const errMsg = `Overlapped appointment`;
+            log.error(errMsg);
+            return {
+                success: false,
+                message: errMsg,
+            };
+        }
 
-    // Check whether the provider's schedule is overlapping with the suggested schedule
-    const isOverlappedWithAnother = await isOverlapped({ provider, startDateTime, endDateTime });
-    if (isOverlappedWithAnother) {
-        const errMsg = `Overlapped appointment`;
-        log.error(errMsg);
+        log.debug('Finally the suggested schedule passed all the tests');
+        return {
+            success: true,
+        };
+    } catch (err) {
+        log.error(err);
         return {
             success: false,
-            message: errMsg,
+            message: err.message,
         };
     }
-
-    return {
-        success: true,
-    };
 };
 
 module.exports = {
