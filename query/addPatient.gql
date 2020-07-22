@@ -1,10 +1,11 @@
 mutation addPatient {
     addPatient(
         input: {
-            userName: "avery1234"
+            userName: "avery1235"
             firstName: "Avery"
             middleName: "Eva"
             lastName: "Lee"
+            gender: "M"
             email: "avery@yopmail.com"
             phone: "512-112-2222"
             addressLine1: "2000 Blackthorn Dr"
@@ -25,6 +26,7 @@ mutation addPatient {
             firstName
             middleName
             lastName
+            gender
             email
             phone
             addressLine1

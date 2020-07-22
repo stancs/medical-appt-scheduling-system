@@ -9,7 +9,9 @@
     "debug": "node --nolazy --inspect-brk  src/index.js",
     "test:integration": "NODE_ENV=test jest src/__tests__/integration.js --setupFiles dotenv/config",
     "start": "node -r dotenv/config src/index.js",
-    "start:watch": "nodemon --exec npm start"
+    "start:watch": "nodemon --exec npm start",
+    "start:watch:trace": "LOG_LEVEL=trace nodemon --exec npm start",
+    "start:watch:debug": "LOG_LEVEL=debug nodemon --exec npm start"
   },
   "repository": {
     "type": "git",
@@ -23,11 +25,14 @@
   "homepage": "https://github.com/stancs/scheduling-system#readme",
   "dependencies": {
     "apollo-server": "^2.15.1",
+    "chalk": "^4.1.0",
     "graphql": "^15.3.0",
     "graphql-iso-date": "^3.6.1",
     "graphql-type-json": "^0.3.2",
+    "log4js": "^6.3.0",
     "moment": "^2.27.0",
     "moment-timezone": "^0.5.31",
+    "mongodb-uri": "^0.9.7",
     "mongoose": "^5.9.24"
   },
   "devDependencies": {

@@ -15,10 +15,7 @@ const patientSchema = new Schema(
         },
         middleName: String,
         lastName: String,
-        gender: {
-            type: String,
-            enum: ['M', 'F'],
-        },
+        gender: String,
         email: String,
         phone: String,
         ssn: String,

@@ -1,3 +1,4 @@
+const chalk = require('chalk');
 const { ApolloServer } = require('apollo-server');
 
 require('./configs/db');
@@ -12,7 +13,7 @@ const server = new ApolloServer({ typeDefs, resolvers });
 // if we're in a test env, we'll manually start it in a test
 if (process.env.NODE_ENV !== 'test') {
     server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
-        console.log(`🚀 app running at ${url}`);
+        console.log(`🚀 ${chalk.bold.yellow(`Scheduling App running at `)}${chalk.magenta(url)}`);
     });
 }
 

@@ -3,6 +3,7 @@ const { GraphQLJSON } = require('graphql-type-json');
 
 const { Patient, Provider, Appointment } = require('./models');
 const { apptFind, checkSuggestedSchedule, deleteOne, findOneAndUpdate } = require('./helper');
+const { log } = require('./logger');
 
 const resolvers = {
     Date: GraphQLDate,
@@ -59,7 +60,7 @@ const resolvers = {
                     provider,
                 };
             } catch (err) {
-                console.log(err);
+                log.error(err);
                 return {
                     success: false,
                     message: err.message,
@@ -80,7 +81,7 @@ const resolvers = {
                     appointment,
                 };
             } catch (err) {
-                console.error(err);
+                log.error(err);
                 return {
                     success: false,
                     message: err.message,
@@ -124,7 +125,7 @@ const resolvers = {
                     };
                 }
             } catch (err) {
-                console.error(err);
+                log.error(err);
                 return {
                     success: false,
                     message: err.message,

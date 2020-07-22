@@ -13,6 +13,7 @@ const typeDefs = gql`
         firstName: String!
         middleName: String
         lastName: String!
+        gender: String
         email: String
         phone: String
         ssn: String
@@ -168,6 +169,7 @@ const typeDefs = gql`
         firstName: String!
         middleName: String
         lastName: String!
+        gender: String
         email: String
         phone: String
         ssn: String
