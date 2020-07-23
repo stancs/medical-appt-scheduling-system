@@ -3,22 +3,26 @@ const gql = require('graphql-tag');
 const GET_PATIENTS = gql`
     query {
         getPatients {
-            id
-            userName
-            firstName
-            middleName
-            lastName
-            gender
-            email
-            phone
-            addressLine1
-            addressLine2
-            city
-            state
-            county
-            zipCode
-            isSmoker
-            birthday
+            success
+            message
+            patients {
+                id
+                userName
+                firstName
+                middleName
+                lastName
+                gender
+                email
+                phone
+                addressLine1
+                addressLine2
+                city
+                state
+                county
+                zipCode
+                isSmoker
+                birthday
+            }
         }
     }
 `;
@@ -26,66 +30,73 @@ const GET_PATIENTS = gql`
 const GET_PROVIDERS = gql`
     query {
         getProviders {
-            id
-            userName
-            firstName
-            middleName
-            lastName
-            email
-            phone
-            addressLine1
-            addressLine2
-            city
-            state
-            county
-            zipCode
-            isAcceptingNewPatient
-            languagesSpoken
-            npi
-            education {
-                medicalSchool
-                residency
+            success
+            message
+            providers {
+                id
+                userName
+                firstName
+                middleName
+                lastName
+                email
+                phone
+                addressLine1
+                addressLine2
+                city
+                state
+                county
+                zipCode
+                isAcceptingNewPatient
+                languagesSpoken
+                npi
+                education {
+                    medicalSchool
+                    residency
+                }
+                biography
+                affiliation {
+                    medicalGroup
+                    hospital
+                }
+                regularShift
+                scheduledShifts {
+                    startDate
+                    endDate
+                    shift
+                }
+                blockedShifts {
+                    startDate
+                    endDate
+                    shift
+                }
+                timeZone
             }
-            biography
-            affiliation {
-                medicalGroup
-                hospital
-            }
-            regularShift
-            scheduledShifts {
-                startDate
-                endDate
-                shift
-            }
-            blockedShifts {
-                startDate
-                endDate
-                shift
-            }
-            timeZone
         }
     }
 `;
 
 const GET_APPOINTMENT_BY_ID = gql`
-    query {
-        getPatients {
-            id
-            userName
-            firstName
-            middleName
-            lastName
-            gender
-            email
-            phone
-            addressLine1
-            addressLine2
-            city
-            state
-            county
-            zipCode
-            isSmoker
-            birthday
+    query getAppointmentById($id: ID!) {
+        getAppointmentById(id: $id) {
+            success
+            message
+            appointmentExtended {
+                id
+                patient {
+                    id
+                    firstName
+                    lastName
+                }
+                provider {
+                    id
+                    firstName
+                    lastName
+                }
+                startDateTime
+                endDateTime
+                location
+                room
+            }
         }
     }
 `;
@@ -93,21 +104,25 @@ const GET_APPOINTMENT_BY_ID = gql`
 const GET_APPOINTMENTS_BY_PERIOD = gql`
     query getAppointmentsByPeriod($startDateTime: DateTime, $endDateTime: DateTime) {
         getAppointmentsByPeriod(startDateTime: $startDateTime, endDateTime: $endDateTime) {
-            id
-            patient {
+            success
+            message
+            appointmentsExtended {
                 id
-                firstName
-                lastName
+                patient {
+                    id
+                    firstName
+                    lastName
+                }
+                provider {
+                    id
+                    firstName
+                    lastName
+                }
+                startDateTime
+                endDateTime
+                location
+                room
             }
-            provider {
-                id
-                firstName
-                lastName
-            }
-            startDateTime
-            endDateTime
-            location
-            room
         }
     }
 `;

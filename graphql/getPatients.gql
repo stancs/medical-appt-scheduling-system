@@ -1,20 +1,24 @@
 query {
     getPatients {
-        id
-        userName
-        firstName
-        middleName
-        lastName
-        gender
-        email
-        phone
-        addressLine1
-        addressLine2
-        city
-        state
-        county
-        zipCode
-        isSmoker
-        birthday
+        success
+        message
+        patients {
+            id
+            userName
+            firstName
+            middleName
+            lastName
+            gender
+            email
+            phone
+            addressLine1
+            addressLine2
+            city
+            state
+            county
+            zipCode
+            isSmoker
+            birthday
+        }
     }
 }

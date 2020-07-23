@@ -27,6 +27,13 @@ const typeDefs = gql`
         birthday: String
     }
 
+    # Patient response format after query
+    type PatientListResponse {
+        success: Boolean!
+        message: String
+        patients: [Patient]
+    }
+
     # Patient response format after mutation
     type PatientResponse {
         success: Boolean!
@@ -80,6 +87,13 @@ const typeDefs = gql`
         # Should get it from console.log(Intl.DateTimeFormat().resolvedOptions().timeZone) in browser side
         # https://stackoverflow.com/questions/1091372/getting-the-clients-timezone-offset-in-javascript
         timeZone: String!
+    }
+
+    # Provider response after query
+    type ProviderListResponse {
+        success: Boolean!
+        message: String
+        providers: [Provider]
     }
 
     # Provider response after mutation
@@ -154,6 +168,20 @@ const typeDefs = gql`
         endDateTime: DateTime # Should get it from DateObject.toISOString()
         location: String
         room: String
+    }
+
+    # Appointment extended response
+    type AppointmentExtendedResponse {
+        success: Boolean!
+        message: String
+        appointmentExtended: AppointmentExtended
+    }
+
+    # Appointments extended response
+    type AppointmentsExtendedResponse {
+        success: Boolean!
+        message: String
+        appointmentsExtended: [AppointmentExtended]
     }
 
     # Delete response after delete mutation operation
@@ -294,18 +322,22 @@ const typeDefs = gql`
     }
 
     type Query {
-        getPatients: [Patient]
-        getPatientById(id: ID!): Patient
-        getProviders: [Provider]
-        getProviderById(id: ID!): Provider
-        getAppointmentById(id: ID!): AppointmentExtended
-        getAppointmentsByPeriod(startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
+        getPatients: PatientListResponse
+        getPatientById(id: ID!): PatientResponse
+        getProviders: ProviderListResponse
+        getProviderById(id: ID!): ProviderResponse
+        getAppointmentById(id: ID!): AppointmentExtendedResponse
+        getAppointmentsByPeriod(startDateTime: DateTime, endDateTime: DateTime): AppointmentsExtendedResponse
         getAppointmentsByProvider(
             providerId: ID!
             startDateTime: DateTime
             endDateTime: DateTime
-        ): [AppointmentExtended]
-        getAppointmentsByPatient(patientId: ID!, startDateTime: DateTime, endDateTime: DateTime): [AppointmentExtended]
+        ): AppointmentsExtendedResponse
+        getAppointmentsByPatient(
+            patientId: ID!
+            startDateTime: DateTime
+            endDateTime: DateTime
+        ): AppointmentsExtendedResponse
     }
 
     type Mutation {

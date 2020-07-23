@@ -5,6 +5,7 @@ const patientInput = {
     lastName: 'Lee',
     email: 'avery@yopmail.com',
     phone: '512-112-2222',
+    gender: 'M',
     addressLine1: '2000 Blackthorn Dr',
     addressLine2: 'Rm 101',
     city: 'Pflugerville',

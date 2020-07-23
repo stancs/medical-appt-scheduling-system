@@ -31,10 +31,11 @@ describe('Queries', () => {
         const { query } = createTestClient(server);
         const res = await query({ query: GET_PATIENTS });
 
-        expect(res.data.getPatients[0].id).toEqual(patients[0]._id.toString());
-        expect(res.data.getPatients[0].userName).toEqual(patients[0].userName);
-        expect(res.data.getPatients[0].firstName).toEqual(patients[0].firstName);
-        expect(res.data.getPatients[0].lastName).toEqual(patients[0].lastName);
+        expect(res.data.getPatients.success).toEqual(true);
+        expect(res.data.getPatients.patients[0].id).toEqual(patients[0]._id.toString());
+        expect(res.data.getPatients.patients[0].userName).toEqual(patients[0].userName);
+        expect(res.data.getPatients.patients[0].firstName).toEqual(patients[0].firstName);
+        expect(res.data.getPatients.patients[0].lastName).toEqual(patients[0].lastName);
     });
 
     it('fetches list of providers', async () => {
@@ -45,10 +46,11 @@ describe('Queries', () => {
         const { query } = createTestClient(server);
         const res = await query({ query: GET_PROVIDERS });
 
-        expect(res.data.getProviders[0].id).toEqual(providers[0]._id.toString());
-        expect(res.data.getProviders[0].userName).toEqual(providers[0].userName);
-        expect(res.data.getProviders[0].firstName).toEqual(providers[0].firstName);
-        expect(res.data.getProviders[0].lastName).toEqual(providers[0].lastName);
+        expect(res.data.getProviders.success).toEqual(true);
+        expect(res.data.getProviders.providers[0].id).toEqual(providers[0]._id.toString());
+        expect(res.data.getProviders.providers[0].userName).toEqual(providers[0].userName);
+        expect(res.data.getProviders.providers[0].firstName).toEqual(providers[0].firstName);
+        expect(res.data.getProviders.providers[0].lastName).toEqual(providers[0].lastName);
     });
 
     it('fetches list of appointments by period', async () => {
@@ -82,13 +84,14 @@ describe('Queries', () => {
             },
         });
 
-        expect(res.data.getAppointmentsByPeriod.length).toBe(numAppts);
-        expect(new Date(res.data.getAppointmentsByPeriod[0].startDateTime).getTime()).toBeGreaterThanOrEqual(
-            now.getTime(),
-        );
-        expect(new Date(res.data.getAppointmentsByPeriod[0].endDateTime).getTime()).toBeLessThanOrEqual(
-            monthLater.getTime(),
-        );
+        expect(res.data.getAppointmentsByPeriod.success).toBe(true);
+        expect(res.data.getAppointmentsByPeriod.appointmentsExtended.length).toBe(numAppts);
+        expect(
+            new Date(res.data.getAppointmentsByPeriod.appointmentsExtended[0].startDateTime).getTime(),
+        ).toBeGreaterThanOrEqual(now.getTime());
+        expect(
+            new Date(res.data.getAppointmentsByPeriod.appointmentsExtended[0].endDateTime).getTime(),
+        ).toBeLessThanOrEqual(monthLater.getTime());
     });
 });
 
@@ -113,7 +116,6 @@ describe('Mutations', () => {
             },
         });
 
-        const patientRes = res.data.addPatient;
         for (const prop in input) {
             expect(res.data.addPatient.patient[prop]).toEqual(input[prop]);
         }
