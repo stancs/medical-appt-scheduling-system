@@ -20,7 +20,7 @@ const apptFind = async ({ id, providerId, patientId, periodStart, periodEnd }) =
     log.debug(`periodStart = ${periodStart}`);
     log.debug(`periodEnd   = ${periodEnd}`);
 
-    return await Appointment.find({
+    const appointments = await Appointment.find({
         ...(id && { _id: id }),
         ...(providerId && { provider: providerId }),
         ...(patientId && { patient: patientId }),
@@ -35,6 +35,9 @@ const apptFind = async ({ id, providerId, patientId, periodStart, periodEnd }) =
         .populate('provider')
         .populate('patient')
         .exec();
+
+    log.debug(`appointments = \n`, appointments);
+    return appointments;
 };
 
 /**
