@@ -4,6 +4,12 @@ This scheduling system connects patients and medical service providers by creati
 
 This backend system uses GraphQL as a communication method between the server and client browsers. 
 
+## Working Examples
+
+[AWS Elastic Beanstalk](http://schedule.us-east-1.elasticbeanstalk.com/)
+
+[Heroku](https://stan-scheduling-app.herokuapp.com/)
+
 ## Installation
 
 This program uses 3rd party npm packages as below:
@@ -78,9 +84,11 @@ To run the test, you don't need to run the GraphQL server since the test script 
 npm run test
 ```
 
-### GraphQL Query
+### GraphQL Queries & Mutations
 
-https://medium.com/@MisterKevin_js/setting-up-visual-studio-code-for-client-side-graphql-autocompletion-using-the-graphql-extension-78d1b34adb44
+To query a graphQL server, you can use `Apollo Playground` to run each query or mutation. 
+
+GraphQL query and mutation examples are in `graphql` folder. You can run any of examples to test each query and mutation.
 
 
 ## Log

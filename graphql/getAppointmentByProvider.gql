@@ -1,0 +1,27 @@
+query {
+    getAppointmentsByProvider(
+        providerId: "5f18a20f06d9390860eac4d1"
+        startDateTime: "2020-07-18T10:00:00.000Z"
+        endDateTime: "2020-12-18T20:00:00.000Z"
+    ) {
+        success
+        message
+        appointmentsExtended {
+            id
+            patient {
+                id
+                firstName
+                lastName
+            }
+            provider {
+                id
+                firstName
+                lastName
+            }
+            startDateTime
+            endDateTime
+            location
+            room
+        }
+    }
+}

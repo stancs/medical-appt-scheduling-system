@@ -11,28 +11,129 @@ const resolvers = {
     JSON: GraphQLJSON,
 
     Query: {
-        getPatients: async () => await Patient.find({}).exec(),
-        getPatientById: async (_, { id }) => await Patient.findById(id).exec(),
-        getProviders: async () => await Provider.find({}).exec(),
-        getProviderById: async (_, { id }) => await Provider.findById(id).exec(),
+        getPatients: async () => {
+            try {
+                const patients = await Patient.find({}).exec();
+                return {
+                    success: true,
+                    patients,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
+        },
+        getPatientById: async (_, { id }) => {
+            try {
+                const patient = await Patient.findById(id).exec();
+                return {
+                    success: true,
+                    patient,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
+        },
+        getProviders: async () => {
+            try {
+                const providers = await Provider.find({}).exec();
+                return {
+                    success: true,
+                    providers,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
+        },
+        getProviderById: async (_, { id }) => {
+            try {
+                const provider = await Provider.findById(id).exec();
+                return {
+                    success: true,
+                    provider,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
+        },
         getAppointmentById: async (_, { id }) => {
-            const appts = await apptFind({ id });
+            try {
+                const appts = await apptFind({ id });
 
-            // Only return the first one
-            if (appts.length !== 0) {
-                return appts[0];
-            } else {
-                return null;
+                // Only return the first one
+                const appointment = appts.length !== 0 ? appts[0] : null;
+
+                return {
+                    success: true,
+                    appointmentExtended: appointment,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
             }
         },
         getAppointmentsByPeriod: async (_, { startDateTime: periodStart, endDateTime: periodEnd }) => {
-            return await apptFind({ periodStart, periodEnd });
+            try {
+                const appointments = await apptFind({ periodStart, periodEnd });
+                return {
+                    success: true,
+                    appointmentsExtended: appointments,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
         },
         getAppointmentsByProvider: async (_, { providerId, startDateTime: periodStart, endDateTime: periodEnd }) => {
-            return await apptFind({ providerId, periodStart, periodEnd });
+            try {
+                const appointments = await apptFind({ providerId, periodStart, periodEnd });
+                return {
+                    success: true,
+                    appointmentsExtended: appointments,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
         },
         getAppointmentsByPatient: async (_, { patientId, startDateTime: periodStart, endDateTime: periodEnd }) => {
-            return await apptFind({ patientId, periodStart, periodEnd });
+            try {
+                const appointments = await apptFind({ patientId, periodStart, periodEnd });
+                return {
+                    success: true,
+                    appointmentsExtended: appointments,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
         },
     },
     Mutation: {
@@ -45,6 +146,7 @@ const resolvers = {
                     patient,
                 };
             } catch (err) {
+                log.error(err);
                 return {
                     success: false,
                     message: err.message,

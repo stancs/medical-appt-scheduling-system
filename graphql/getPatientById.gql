@@ -1,0 +1,24 @@
+query {
+    getPatientById(id: "5f0ff6987a981c978ecb01c2") {
+        success
+        message
+        patient {
+            id
+            userName
+            firstName
+            middleName
+            lastName
+            gender
+            email
+            phone
+            addressLine1
+            addressLine2
+            city
+            state
+            county
+            zipCode
+            isSmoker
+            birthday
+        }
+    }
+}
