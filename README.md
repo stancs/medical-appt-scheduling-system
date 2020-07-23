@@ -212,35 +212,45 @@ For each schedule, we will get numbers that represent Unix timestamp in millisec
 | BS             | Blocked schedule's starting point Unix timestamp     |
 | BE             | Blocked schedule's ending point Unix timestamp       |
 
-[Case 1]: Overlap at the left edge
+* Case 1: Overlap at the left edge
 
 ![Screenshot](pics/case1.svg)
 
-`SS<BS<SE`
+Condition: `SS<BS<SE`
 
-[Case 2]: Overlap at the right edge
+<br>
+
+* Case 2: Overlap at the right edge
 
 ![Screenshot](pics/case2.svg)
 
-`SS<BE<SE`
+Condition: `SS<BE<SE`
 
-[Case 3]: Containment
+<br>
+
+* Case 3: Containment
 
 ![Screenshot](pics/case3.svg)
 
-`BS<=SS && SE<=BE`
+Condition: `BS<=SS && SE<=BE`
 
-[Case 4]: Entirely separated on the left
+<br>
+
+* Case 4: Entirely separated on the left
 
 ![Screenshot](pics/case4.svg)
 
-`SS<SE< BS`
+Condition: `SS<SE< BS`
 
-[Case 5]: Entirely seprated on the right
+<br>
+
+* Case 5: Entirely seprated on the right
 
 ![Screenshot](pics/case5.svg)
 
-`BE<SS<SE`
+Condition: `BE<SS<SE`
+
+<br>
 
 We will check the endpoint conditions and determine its overlap status.
 
