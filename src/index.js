@@ -17,7 +17,7 @@ if (process.env.NODE_ENV !== 'test') {
     });
 }
 
-// export all the important pieces for integration/e2e tests to use
+// export all the important pieces for integration test to use
 module.exports = {
     typeDefs,
     resolvers,

@@ -191,20 +191,36 @@ const resolvers = {
             }
         },
         updatePatient: async (_, { id, input }) => {
-            const { success, newRecord, message } = await findOneAndUpdate({ model: Patient, id, input });
-            return {
-                success,
-                message,
-                patient: newRecord,
-            };
+            try {
+                const { success, newRecord, message } = await findOneAndUpdate({ model: Patient, id, input });
+                return {
+                    success,
+                    message,
+                    patient: newRecord,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
         },
         updateProvider: async (_, { id, input }) => {
-            const { success, newRecord, message } = await findOneAndUpdate({ model: Provider, id, input });
-            return {
-                success,
-                message,
-                provider: newRecord,
-            };
+            try {
+                const { success, newRecord, message } = await findOneAndUpdate({ model: Provider, id, input });
+                return {
+                    success,
+                    message,
+                    provider: newRecord,
+                };
+            } catch (err) {
+                log.error(err);
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
         },
         updateAppointment: async (_, { id, input }) => {
             try {
