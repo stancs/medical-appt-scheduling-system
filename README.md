@@ -2,7 +2,7 @@
 
 This scheduling system connects patients and medical service providers by creating an appointment during their available hours. Using frontend UI that communicates with a server via GraphQL interface, office administrators can effectively and efficiently fetch patient information, provider information, and appointment information as well as manage these data by creating, updating, and deleting in Mongo DB.
 
-There are three models in this system, `Patient`, `Provider`, and `Appointment`. I tried to reflect the reality of the appointment-making procedures that I've experienced so far as much as possible. The system development scope is limited to the backend part for now, but there will be more considerations and issues will come up when we expand the development scope into frontend and cloud infrastructure parts.
+There are three models in this system, `Patient`, `Provider`, and `Appointment`. I tried to reflect the reality of the appointment-making procedures that I've experienced so far as much as possible. The system development scope is limited to the backend part for now, but there will be more considerations and issues that will come up with when we expand the development scope into frontend and cloud infrastructure parts.
 
 ## Working Examples
 
