@@ -7,6 +7,7 @@ This backend system uses GraphQL as a communication method between the server an
 ## Working Examples
 
 [AWS Elastic Beanstalk](http://schedule.us-east-1.elasticbeanstalk.com/)
+
 [Heroku](https://stan-scheduling-app.herokuapp.com/)
 
 ## Installation
