@@ -1,10 +1,13 @@
 # Medical Appointment Scheduling System
 
-This scheduling system connects patients and medical service providers by creating an appointment during their available hours. Using Mongo database, office administrators can enter patient information, provider information, and appointment information and manage these data by updating and deleting.
+This scheduling system connects patients and medical service providers by creating an appointment during their available hours. Using frontend UI that communicates with a server via GraphQL interface, office administrators can effectively and efficiently fetch patient information, provider information, and appointment information as well as manage these data by creating, updating, and deleting in Mongo DB.
 
-This backend system uses GraphQL as a communication method between the server and client browsers. 
+There are three models in this system, `Patient`, `Provider`, and `Appointment`. I tried to reflect the reality of the appointment-making procedures that I've experienced so far as much as possible. The system development scope is limited to the backend part for now, but there will be more considerations and issues will come up when we expand the development scope into frontend and cloud infrastructure parts.
 
 ## Working Examples
+
+When you enter the example sites, Apollo Playground will be shown and you can test your GraphQL queries and mutations. Two example apps are connected to the same Mongo DB source.
+(Examples are in `/graphql` folder)
 
 [AWS Elastic Beanstalk](http://schedule.us-east-1.elasticbeanstalk.com/)
 
@@ -28,7 +31,7 @@ This program uses 3rd party npm packages as below:
 
 To install these npm packages, Node.js should be installed beforehand. 
 
-In Node.js environment, run this command
+In Node.js environment, run this command in the project root folder:
 
 ```
 npm install
@@ -51,7 +54,7 @@ The preferred approach to run this Node.js app is to preload the environment var
 The reasons why I prefer preloading are:
 
 - Less side effects when you preload the environment variables rather than loading them inside the application
-- Simliar to the preloading situation inside a cloud infrastructure
+- Simliar to the preloading situation inside cloud infrastructures such as AWS EC2 or Heroku
 
 ## Run
 
@@ -79,7 +82,7 @@ If env variable `NODE_ENV` is set to `production`, GraphQL Playground and intros
 To run integration test, you need to set Mongo DB test URL in env variable `MONGO_DB_TEST_URL`. 
 For every test, it will wipe out previous records, and run DB operations from there. 
 
-To run the test, you don't need to run the GraphQL server since the test script itself will run the server. Please enter this command:
+To run the test, you don't need to run the GraphQL server since the test script itself will run the server by itself. Please enter this command:
 
 ```
 npm run test
@@ -94,7 +97,7 @@ GraphQL query and mutation examples are in `graphql` folder. You can run any of 
 
 ## Log
 
-The log management in this system uses `log4js` npm package. There are 8 levels in the log
+The log management in this system uses [`log4js`](https://www.npmjs.com/package/log4js) npm package. There are 8 levels in the log
 
 ```
 ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < MARK < OFF
@@ -111,17 +114,17 @@ Here are some issues that I encountered during the development of this project
 
 There are number of ways to transfer the time object from a user's browser to the web application's server. 
 
-Two efficient ways to transfer those time data into the server without timezone side effect are as below:
+Two efficient ways to transfer those time data into the server without any timezone side effect are as below:
 
 ![Screenshot](pics/time_conversion.png)
 
 1. `Date.prototype.toISOString()`
-   The `toISOString()` method returns a string in simplified extended ISO format (ISO 8601) such as `YYYY-MM-DDTHH:mm:ss.sssZ`). The timezone is always zero UTC offset and it shows by the suffix `Z` at the end of the ISO string format.
+   The `toISOString()` method returns a string in simplified extended ISO format (ISO 8601) such as `YYYY-MM-DDTHH:mm:ss.sssZ`. The timezone is always zero UTC offset and it shows by the suffix `Z` at the end of the ISO string format.
 
-   This string can be transferred to the server side and the server app can create a new `Date` object directly from this ISO string
+   This string can be transferred to the server side and the server app can create a new `Date` object directly from this ISO string to handle Date-related operations.
 
 2. `Date.prototype.getTime()`
-   The `getTime()` method returns the number of milliseconds since the Unix Epoch. Originally it started from Unix Timestamp which track time as a total running of seconds at the Unix Epoch on January 1st, 1970 at UTC. This count does not change no matter where you are located on the globe. This is very useful to computer systems for tracking and sorting dated information on both server and client sides. In JavaScript, this method returns the number of milliseconds instead of the number of seconds.
+   The `getTime()` method returns the number of milliseconds since the Unix Epoch. Originally it started from Unix Timestamp which tracks time as a total running of seconds at the Unix Epoch on January 1st, 1970 at UTC. This count does not change no matter where you are located on the globe. This is very useful to computer systems for tracking and sorting dated information on both server and client sides. In JavaScript, this method returns the number of milliseconds instead of the number of seconds.
 
 Below example shows that ISO string and unix timestamp are interchangeable and we can use either of them as a string format or a number format to transfer time information from client to server and vice versa.
 
@@ -142,13 +145,13 @@ For now, I use `ISO String` format to transfer time data from client to the serv
 
 For scheduling app like this, time zone issue is quite sensitive one since it can bring a huge amount of confusion between patients and providers. 
 
-For example, a patient travels in California and plans to go back to his home city, Austin next week. He wants to make an appointment at 1:00PM next Thursday. He found an available spot in the scheduling app, and takes that spot to make his appointment with a doctor. However, the app developer made a mistake to interpret timezone. He designed to get the current time based on the time zone where the user web broswer is used. In this case, the patient made an appointment with a doctor in Texas at 1PM, but this 1PM is Pacific Daylight Time(PDT), instead of Central Daylight Time(CDT). He remembered that the appointment was at 1PM, but next Thursday he might find that the appointment is actually 3PM in Austin. 
+For example, a patient traveling in California plans to go back to his home city, Austin, next week. He wants to make an appointment at 1:00PM next Thursday. He found an available spot in the scheduling app, and takes that spot to make his appointment with a doctor. However, the app developer made a mistake to interpret time zone. He designed to get the current time based on the time zone where the user web broswer is used. In this case, the patient made an appointment with a doctor in Texas at 1PM, but this 1PM is Pacific Daylight Time(PDT), instead of Central Daylight Time(CDT). He remembered that the appointment was at 1PM, but next Thursday he might find that the appointment is actually 3PM in Austin. 
 
 There are many questions around the issue of how to determine time zone. In my opinion, I believe the time zone should be based on the provider's location. All the visitors who wants to meet a specific medical service provider need to visit the provider's office and check the provider's time zone to visit at the right time.
 
-In the above example, even though the patient is in California, if the patient visit a provider in Texas in the future, the browser should show a schedule sheet or calendar based on the provider's time zone. If the appointment was set at 3PM, then it means 3PM at the time zone of the provider. This clarification will make all the scheduling between patients and providers easier.
+In the above example, even though the patient is in California, if the patient visit a provider in Texas in the future, the browser should show a schedule sheet or calendar based on the provider's time zone. If the appointment was set to 3PM, then it means 3PM at the time zone of the provider. This clarification will make all the scheduling between patients and providers much easier.
 
-UTC(Coordinated Univeral Time) is a time standard that is the basis for civil time and time zones worldwide. Depending on geographical location, timezone changes and we can calculate timezone offset, which is the difference UTC and local time in minutes. We can calculate timezone offset using `getTimezoneOffset()` in JavaScript. 
+UTC(Coordinated Univeral Time) is a time standard that is the basis for civil time and time zones worldwide. Depending on geographical location, time zone changes and we can calculate time zone offset, the difference between UTC and local time in minutes. We can calculate time zone offset using `getTimezoneOffset()` in JavaScript. 
 
 ```
 > var now = new Date()
@@ -158,9 +161,9 @@ UTC(Coordinated Univeral Time) is a time standard that is the basis for civil ti
 '2020-07-23T06:01:45.015Z'
 ```
 
-This means the current timezone is 300 minutes (5 hrs) behind UTC. UTC time is `06:01:45Z` and the current time (in Austin) is `01:01:45`.  But using an offset to calculate timezone is a wrong approach since time zones and daylight saving rules can change on several occasions during a year and it's very hard to track down all the changes. 
+This means the current time zone is 300 minutes (5 hrs) behind UTC. UTC time is `06:01:45Z` and the current time (in Austin) is `01:01:45`.  But using an offset to calculate timezone is a wrong approach since time zones and daylight saving rules can change on several occasions during a year and it's very hard to track down all the changes. 
 
-JavaScript Standard object `Date` has poor support on timezone transition. [moment-timezone npm package](https://momentjs.com/timezone/) has a better support in parsing and displaying dates and times in any time zones. If we know the current time zone and UTC time, then we can get local time using this npm package. 
+JavaScript Standard object `Date` has poor support on time zone transition. [`moment-timezone`](https://momentjs.com/timezone/) npm package has better support in parsing and displaying dates and times in any time zones. If we know the current time zone and UTC time, then we can get local time using this npm package. 
 
 To get a timezone of a user's browser, you can run this:
 
@@ -189,11 +192,11 @@ The provider might have these schedules:
 - Regular hours: Every provider has a specific planned business hours so that patients can make an appointment to meet the doctors. Those are mostly based on the day of the week such as Monday 9am-5pm. 
 - Available schedule: For some reason, a provider can shift their schedules for specific days or period. For example, for a specific provider, the regular hours can be MWF 9am-5pm. But from 10/1~10/30, it can be MTTh 8am-4pm. In this case, this available schedules have higher priority than the regular hours so that patients can make appointments during this available hours. 
 
-In the scheduling app, the algorithm to determine whether a patient can make an appointment should pass these three condition
+In the scheduling app, the algorithm to determine whether a patient can make an appointment should pass these four conditions:
 
 1. The suggested appointment should not overlap with any of blocked schedules.
 2. If the suggested appointment is within the dates of the availables schedules,
-   1. Check whether the suggested appointment is contained in the available schedules. If it's contained then, we will need to jump to [Step 4] to check any overlap with the existing appointments
+   1. Check whether the suggested appointment is contained in the available schedules. If it's contained, then we will need to jump to [Step 4] to check any overlap with the existing appointments
 3. If the suggested appointment is outside of the dates of the available schedules, we need to check regular hours
 4. Check with the provider's existing schedules to see if there is any overlap
 
@@ -203,7 +206,7 @@ To determine whether two schedules are overlapping, containing one another, or e
 
 For example, let's check the mathematical conditions for overlapping situation between blocked schedule and suggested schedule.
 
-For each schedule, we will get numbers that represent Unix timestamp in milliseconds for each starting point and ending point of the period. Each timestamp represent below:
+For each schedule, we will get numbers that represent Unix timestamp in milliseconds for each starting point and ending point of each period. Each timestamp represents below:
 
 | Abbreviation   | Description                                          |
 | ---------------| -----------------------------------------------------|
