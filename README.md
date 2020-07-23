@@ -4,6 +4,11 @@ This scheduling system connects patients and medical service providers by creati
 
 This backend system uses GraphQL as a communication method between the server and client browsers. 
 
+## Working Examples
+
+[AWS Elastic Beanstalk](http://schedule.us-east-1.elasticbeanstalk.com/)
+[Heroku](https://stan-scheduling-app.herokuapp.com/)
+
 ## Installation
 
 This program uses 3rd party npm packages as below:
