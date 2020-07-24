@@ -4,6 +4,10 @@ This scheduling system connects patients and medical service providers by creati
 
 There are three models in this system, `Patient`, `Provider`, and `Appointment`. I tried to reflect the reality of the appointment-making procedures that I've experienced so far as much as possible. The system development scope is limited to the backend part for now, but there will be more considerations and issues that will come up with when we expand the development scope into frontend and cloud infrastructure parts.
 
+## Presentation
+
+[Presentation Slides](https://docs.google.com/presentation/d/1m-oGZXMhRoBaQRV9M0ZayhUJNa2Ju4Xs0-epUA8hJUk/edit?usp=sharing)
+
 ## Working Examples
 
 When you enter the example sites, Apollo Playground will be shown and you can test your GraphQL queries and mutations. Two example apps are connected to the same Mongo DB source.
