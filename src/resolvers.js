@@ -224,7 +224,19 @@ const resolvers = {
         },
         updateAppointment: async (_, { id, input }) => {
             try {
-                const { success, message } = await checkSuggestedSchedule(input);
+                const appointment = await Appointment.findById(id).exec();
+
+                const adjustedInput = {
+                    patient: input.patient || appointment.patient,
+                    provider: input.provider || appointment.provider,
+                    startDateTime: input.startDateTime || appointment.startDateTime,
+                    endDateTime: input.endDateTime || appointment.endDateTime,
+                    location: input.location || appointment.location,
+                    room: input.room || appointment.room,
+                };
+
+                const { success, message } = await checkSuggestedSchedule(adjustedInput);
+
                 if (success) {
                     const { success: updateSuccess, newRecord, message: updateMsg } = await findOneAndUpdate({
                         model: Appointment,

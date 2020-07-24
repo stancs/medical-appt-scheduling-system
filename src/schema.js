@@ -313,10 +313,10 @@ const typeDefs = gql`
     # Input parameters for Appointment data Update
     # Those props with '!' are all essential information to update an appointment
     input AppointmentUpdateInput {
-        patient: ID!
-        provider: ID!
-        startDateTime: DateTime!
-        endDateTime: DateTime!
+        patient: ID
+        provider: ID
+        startDateTime: DateTime
+        endDateTime: DateTime
         location: String
         room: String
     }
@@ -350,7 +350,7 @@ const typeDefs = gql`
         removeProvider(id: ID!): DeleteResponse
 
         # The input for updating appointment is same as the one for creation
-        updateAppointment(id: ID!, input: AppointmentInput): AppointmentResponse
+        updateAppointment(id: ID!, input: AppointmentUpdateInput): AppointmentResponse
         updatePatient(id: ID!, input: PatientUpdateInput): PatientResponse
         updateProvider(id: ID!, input: ProviderUpdateInput): ProviderResponse
     }

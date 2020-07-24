@@ -314,8 +314,8 @@ const isOverlapped = async ({ patientId, provider, startDateTime, endDateTime })
         log.debug(`appt end       : ${printTimes(apptEndTimestamp, provider.timeZone)}`);
 
         const isOverlappedWithAppt = !(
-            (suggestedStartTimestamp < apptStartTimestamp && suggestedEndTimestamp < apptStartTimestamp) ||
-            (apptEndTimestamp < suggestedStartTimestamp && apptEndTimestamp < suggestedEndTimestamp)
+            (suggestedStartTimestamp <= apptStartTimestamp && suggestedEndTimestamp <= apptStartTimestamp) ||
+            (apptEndTimestamp <= suggestedStartTimestamp && apptEndTimestamp <= suggestedEndTimestamp)
         );
 
         if (isOverlappedWithAppt) {

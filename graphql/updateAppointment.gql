@@ -1,9 +1,7 @@
 mutation updateAppointment {
     updateAppointment(
-        id: "5f1688586c57b00d3b33368d"
+        id: "5f1a8a16e60b0b0a14b8fee9"
         input: {
-            patient: "5f167a4850b07e0593982280"
-            provider: "5f167a6750b07e0593982281"
             startDateTime: "2020-12-09T15:00:00Z"
             endDateTime: "2020-12-09T16:00:00Z"
             location: "Anderson Mill-Austin, TX"
