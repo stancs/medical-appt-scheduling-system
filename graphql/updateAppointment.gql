@@ -2,8 +2,8 @@ mutation updateAppointment {
     updateAppointment(
         id: "5f1a8a16e60b0b0a14b8fee9"
         input: {
-            startDateTime: "2020-12-09T16:00:00Z"
-            endDateTime: "2020-12-09T17:00:00Z"
+            startDateTime: "2020-12-09T15:00:00Z"
+            endDateTime: "2020-12-09T16:00:00Z"
             location: "Anderson Mill-Austin, TX"
             room: "Rm10"
         }

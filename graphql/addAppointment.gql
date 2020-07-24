@@ -3,8 +3,8 @@ mutation addAppointment {
         input: {
             patient: "5f167a4850b07e0593982280"
             provider: "5f167a6750b07e0593982281"
-            startDateTime: "2020-10-12T14:00:00Z"
-            endDateTime: "2020-10-12T15:00:00Z"
+            startDateTime: "2020-12-09T17:00:00Z"
+            endDateTime: "2020-12-09T18:00:00Z"
             location: "Anderson Mill-Austin, TX"
             room: "Rm10"
         }
