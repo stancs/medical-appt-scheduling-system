@@ -15,9 +15,37 @@ When you enter the example sites, Apollo Playground will be shown and you can te
 
 ![GraphQL Examples](pics/graphql_examples.png)
 
-[AWS Elastic Beanstalk](http://schedule.us-east-1.elasticbeanstalk.com/) (Might not work. Then, try the Heroku one instead)
+[Render](https://medical-appt-scheduling-system.onrender.com/)
 
-[Heroku](https://stan-scheduling-app.herokuapp.com/)
+You can start to run this GraphQL query:
+
+```
+query {
+    getPatients {
+        success
+        message
+        patients {
+            id
+            userName
+            firstName
+            middleName
+            lastName
+            gender
+            email
+            phone
+            addressLine1
+            addressLine2
+            city
+            state
+            county
+            zipCode
+            isSmoker
+            birthday
+        }
+    }
+}
+```
+![Render Deployment Examples](pics/render_example.png)
 
 ## Installation
 
