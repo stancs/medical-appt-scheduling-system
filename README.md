@@ -15,7 +15,7 @@ When you enter the example sites, Apollo Playground will be shown and you can te
 
 ![GraphQL Examples](pics/graphql_examples.png)
 
-[Render](https://medical-appt-scheduling-system.onrender.com/)
+[GraphQL Test (Deployed in Render)](https://medical-appt-scheduling-system.onrender.com/)
 
 You can start to run this GraphQL query:
 
