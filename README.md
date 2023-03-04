@@ -13,6 +13,8 @@ There are three models in this system, `Patient`, `Provider`, and `Appointment`.
 When you enter the example sites, Apollo Playground will be shown and you can test your GraphQL queries and mutations. Two example apps are connected to the same Mongo DB source.
 (Examples are in `/graphql` folder)
 
+![GraphQL Examples](pics/graphql_examples.png)
+
 [AWS Elastic Beanstalk](http://schedule.us-east-1.elasticbeanstalk.com/) (Might not work. Then, try the Heroku one instead)
 
 [Heroku](https://stan-scheduling-app.herokuapp.com/)
